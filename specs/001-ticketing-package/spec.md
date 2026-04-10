@@ -42,9 +42,9 @@ and collaborates with support staff until the ticket is resolved.
 **Why this priority**: Ticket creation, conversation, assignment, and resolution form the package's
 core value and must work before broader automation and analytics features matter.
 
-**Independent Test**: A host application can create a ticket from a user-facing form or internal
-workflow, route it to a responsible party, exchange public replies and internal notes, and close it
-with a complete visible history.
+**Independent Test**: A host application can create a ticket from a user-facing or staff-facing entry
+point, or an internal workflow, route it to a responsible party, exchange public replies and
+internal notes, and close it with a complete visible history.
 
 **Acceptance Scenarios**:
 
@@ -279,6 +279,8 @@ desk module and enables broad adoption across host applications.
   all three.
 - Different host applications need different ticket taxonomies, forms, and automation rules, so these
   are treated as configurable rather than fixed defaults.
+- Minimal customer-facing and staff-facing entry points are part of the package surface from the
+  first release, while richer UI scaffolding may be enabled incrementally by host applications.
 - Email, queue, notification, and broadcast capabilities may be enabled progressively by the host
   application depending on operational needs.
 - Reporting dashboards may be built by host applications or companion packages as long as the package

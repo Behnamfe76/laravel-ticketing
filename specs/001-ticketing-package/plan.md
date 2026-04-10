@@ -200,14 +200,19 @@ still enabling realistic integration coverage through Testbench and a workbench 
 ### SLA and Escalation Rules
 
 - SLA policies attach to tickets by category, priority, queue, or custom rule inputs.
-- Timers, breach calculations, reminders, and escalations run through queueable jobs.
-- Automation precedence resolves conflicting actions deterministically.
+- A dedicated escalation engine evaluates timers, breach thresholds, reminders, and
+  escalation actions through queueable jobs and scheduler-friendly entry points.
+- Automation precedence and escalation conflicts are resolved deterministically through
+  explicit rule ordering and stop-processing semantics.
 
 ### Attachments
 
-- Attachment metadata is persisted in package tables while storage uses Laravel disks.
+- Attachment metadata is persisted in package tables while binary storage is mediated
+  through a storage abstraction that resolves Laravel disks, visibility, signed access,
+  retention, and cleanup behavior.
 - Access checks follow ticket/reply visibility policies.
-- Upload validation and retention hooks are configurable.
+- Upload validation, disk selection, retrieval authorization, and retention hooks are
+  configurable and overridable by contract.
 
 ### Notifications
 
@@ -222,6 +227,8 @@ still enabling realistic integration coverage through Testbench and a workbench 
   attachments using dedicated mail ingestion services and jobs.
 - Outbound mailables mirror public replies and lifecycle updates while preserving
   message threading metadata.
+- Mailbox routing, thread correlation, unmatched-message quarantine, and operational
+  observability are explicit parts of the email subsystem.
 - Ambiguous inbound messages are quarantined or flagged instead of silently mutating
   tickets.
 
@@ -236,8 +243,11 @@ still enabling realistic integration coverage through Testbench and a workbench 
 
 - Custom field definitions drive ticket forms, validation, serialization, indexing, and
   API exposure.
-- Field types are extensible, and host apps can register additional renderers or rule
-  resolvers.
+- Validation strategy includes field-type validators, conditional visibility rules,
+  normalization, persistence-safe serialization, and parity between API, action, and UI
+  request handling.
+- Field types are extensible, and host apps can register additional renderers, rule
+  resolvers, or normalizers.
 
 ### Search and Filtering
 
@@ -259,6 +269,8 @@ still enabling realistic integration coverage through Testbench and a workbench 
 - Package may ship optional Blade/inertia-agnostic adapters or controllers/resources
   that host apps can enable selectively.
 - Staff UI adapters depend on actions/services and policies, not direct model logic.
+- Minimal staff-facing entry points for the core lifecycle are part of the MVP package
+  surface; richer scaffolding remains optional.
 
 ### Public/Customer Portal Support
 
@@ -266,25 +278,32 @@ still enabling realistic integration coverage through Testbench and a workbench 
   experiences.
 - Portal features are installable independently from staff tooling so existing apps can
   adopt incrementally.
+- Minimal customer-facing entry points for ticket creation and reply flows are part of
+  the MVP package surface; richer scaffolding remains optional.
 
 ### Multi-Tenancy Compatibility
 
 - Tenant scoping is resolved through a contract rather than a package-owned tenancy
   implementation.
-- Models and repositories accept tenant context and support global scopes where safe.
-- Queue jobs, notifications, and email ingestion carry tenant context explicitly.
+- Models, repositories, API resources, portal/staff adapters, and saved views accept
+  tenant context and apply tenant scopes consistently.
+- Queue jobs, notifications, email ingestion, and reporting payloads carry tenant
+  context explicitly.
+- Tenant resolution, scope enforcement, and cross-tenant safety checks are validated in
+  dedicated integration tests.
 
 ## Testing Strategy
 
 - Unit tests: lifecycle state machines, automation evaluators, SLA calculations,
-  mention parsing, tenant resolution helpers, custom field rules, and notification
-  routing decisions.
+  mention parsing, tenant resolution helpers, custom field rules, authorization policy
+  decisions, attachment storage resolution, and notification routing decisions.
 - Feature tests: ticket creation, portal replies, internal notes, assignment changes,
-  search/filter endpoints, saved views, policies, upload flows, and install command
-  behavior.
+  search/filter endpoints, saved views, staff-facing access, customer-facing access,
+  policies, upload flows, and install command behavior.
 - Integration tests: Composer package boot, auto-discovery, published migrations/config,
   host auth compatibility, queue processing, mail ingestion, broadcast/database/mail
-  notifications, and multi-tenant isolation with Testbench/workbench.
+  notifications, attachment storage integration, mailbox routing, and multi-tenant
+  isolation with Testbench/workbench.
 
 ## Complexity Tracking
 
