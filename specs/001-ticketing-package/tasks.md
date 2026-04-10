@@ -28,13 +28,13 @@ delivery incremental and non-chaotic.
 
 **Purpose**: Bootstrap the Composer package and installation experience
 
-- [ ] T001 Create Composer package metadata and package autoload structure in `composer.json`
-- [ ] T002 Create package service provider and auto-discovery wiring in `src/Providers/TicketingServiceProvider.php`
-- [ ] T003 [P] Create primary package configuration, model map defaults, and feature toggles in `config/ticketing.php`
-- [ ] T004 [P] Create package permission and ability mapping configuration in `config/ticketing-permissions.php`
-- [ ] T005 [P] Create package install command and publish tags in `src/Console/Commands/InstallTicketingCommand.php`
-- [ ] T006 [P] Configure Pest or PHPUnit with Orchestra Testbench bootstrap in `tests/TestCase.php`
-- [ ] T007 [P] Create workbench integration bootstrap for package verification in `workbench/bootstrap/app.php`
+- [x] T001 Create Composer package metadata and package autoload structure in `composer.json`
+- [x] T002 Create package service provider and auto-discovery wiring in `src/Providers/TicketingServiceProvider.php`
+- [x] T003 [P] Create primary package configuration, model map defaults, and feature toggles in `config/ticketing.php`
+- [x] T004 [P] Create package permission and ability mapping configuration in `config/ticketing-permissions.php`
+- [x] T005 [P] Create package install command and publish tags in `src/Console/Commands/InstallTicketingCommand.php`
+- [x] T006 [P] Configure Pest or PHPUnit with Orchestra Testbench bootstrap in `tests/TestCase.php`
+- [x] T007 [P] Create workbench integration bootstrap for package verification in `workbench/bootstrap/app.php`
 
 ---
 
