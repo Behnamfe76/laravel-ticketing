@@ -34,4 +34,9 @@ class Assignment extends Model
     {
         return $this->morphTo('assigned_by');
     }
+
+    public function scopeCurrent($query)
+    {
+        return $query->where('is_current', true);
+    }
 }

@@ -39,6 +39,7 @@ class InstallTicketingCommand extends Command
         $this->line('  2. Review config/ticketing-permissions.php for ability mapping.');
         $this->line('  3. Run php artisan migrate if you did not use --migrate.');
         $this->line('  4. Enable the portal, staff, API, mail, and queue features you need.');
+        $this->line('  5. Map your host user roles or replace the MapsTicketRoles binding as needed.');
 
         return self::SUCCESS;
     }

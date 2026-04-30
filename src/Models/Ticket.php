@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ticket extends Model
@@ -82,5 +83,33 @@ class Ticket extends Model
     public function auditRecords(): HasMany
     {
         return $this->hasMany(AuditRecord::class);
+    }
+
+    public function currentAssignment(): BelongsTo
+    {
+        return $this->belongsTo(Assignment::class, 'current_assignment_id');
+    }
+
+    public function scopeForTenant(Builder $query, int|string|null $tenantId): Builder
+    {
+        return $query->where('tenant_id', $tenantId);
+    }
+
+    public function markResolved(): void
+    {
+        $this->forceFill([
+            'resolved_at' => now(),
+            'closed_at' => null,
+            'last_activity_at' => now(),
+        ])->save();
+    }
+
+    public function reopen(): void
+    {
+        $this->forceFill([
+            'resolved_at' => null,
+            'closed_at' => null,
+            'last_activity_at' => now(),
+        ])->save();
     }
 }

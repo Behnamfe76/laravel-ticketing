@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class AuditRecord extends Model
 {
-    public const UPDATED_AT = null;
-
     protected $table = 'ticketing_audit_records';
+
+    public $timestamps = false;
 
     protected $guarded = [];
 

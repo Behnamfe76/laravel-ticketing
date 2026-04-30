@@ -20,6 +20,11 @@ class ConversationEntry extends Model
         'meta' => 'array',
     ];
 
+    public function getIsInternalAttribute(): bool
+    {
+        return $this->entry_type === 'internal_note';
+    }
+
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(Ticket::class);

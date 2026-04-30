@@ -17,6 +17,16 @@ class Attachment extends Model
         'meta' => 'array',
     ];
 
+    public static function rules(): array
+    {
+        return [
+            'disk' => ['required', 'string'],
+            'path' => ['required', 'string'],
+            'original_name' => ['required', 'string'],
+            'size_bytes' => ['integer', 'min:0'],
+        ];
+    }
+
     public function attachable(): MorphTo
     {
         return $this->morphTo();

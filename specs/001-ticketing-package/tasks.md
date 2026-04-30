@@ -71,63 +71,63 @@ resolve or reopen the ticket with full activity history.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T017 [P] [US1] Create unit tests for ticket lifecycle transitions in `tests/Unit/Tickets/TicketLifecycleTest.php`
-- [ ] T018 [P] [US1] Create feature tests for portal and staff ticket submission and resolution flows in `tests/Feature/Tickets/SubmitAndResolveTicketTest.php`
-- [ ] T019 [P] [US1] Create integration tests for host-app ticket creation and install flow in `tests/Integration/Tickets/HostTicketLifecycleTest.php`
-- [ ] T020 [P] [US1] Create unit tests for ticket, reply, and assignment authorization rules in `tests/Unit/Auth/TicketPolicyTest.php`
-- [ ] T021 [P] [US1] Create feature tests for portal/staff access denials and watcher visibility in `tests/Feature/Auth/TicketAuthorizationTest.php`
+- [x] T017 [P] [US1] Create unit tests for ticket lifecycle transitions in `tests/Unit/Tickets/TicketLifecycleTest.php`
+- [x] T018 [P] [US1] Create feature tests for portal and staff ticket submission and resolution flows in `tests/Feature/Tickets/SubmitAndResolveTicketTest.php`
+- [x] T019 [P] [US1] Create integration tests for host-app ticket creation and install flow in `tests/Integration/Tickets/HostTicketLifecycleTest.php`
+- [x] T020 [P] [US1] Create unit tests for ticket, reply, and assignment authorization rules in `tests/Unit/Auth/TicketPolicyTest.php`
+- [x] T021 [P] [US1] Create feature tests for portal/staff access denials and watcher visibility in `tests/Feature/Auth/TicketAuthorizationTest.php`
 
 ### Implementation for User Story 1
 
 #### Slice: Package bootstrap and install experience
 
-- [ ] T022 [US1] Implement install command workflow, publish tags, and setup guidance output in `src/Console/Commands/InstallTicketingCommand.php`
-- [ ] T023 [US1] Register package routes, commands, events, and bindings in `src/Providers/TicketingServiceProvider.php`
+- [x] T022 [US1] Implement install command workflow, publish tags, and setup guidance output in `src/Console/Commands/InstallTicketingCommand.php`
+- [x] T023 [US1] Register package routes, commands, events, and bindings in `src/Providers/TicketingServiceProvider.php`
 
 #### Slice: Ticket core domain
 
-- [ ] T024 [P] [US1] Implement ticket domain model, taxonomy relations, and tenant scoping in `src/Models/Ticket.php`
-- [ ] T025 [P] [US1] Implement ticket creation and update contracts in `src/Contracts/Tickets/CreatesTickets.php`
-- [ ] T026 [US1] Implement ticket create/update actions and service orchestration in `src/Actions/Tickets/CreateTicketAction.php`
-- [ ] T027 [US1] Implement ticket persistence and query repository in `src/Repositories/Eloquent/EloquentTicketRepository.php`
+- [x] T024 [P] [US1] Implement ticket domain model, taxonomy relations, and tenant scoping in `src/Models/Ticket.php`
+- [x] T025 [P] [US1] Implement ticket creation and update contracts in `src/Contracts/Tickets/CreatesTickets.php`
+- [x] T026 [US1] Implement ticket create/update actions and service orchestration in `src/Actions/Tickets/CreateTicketAction.php`
+- [x] T027 [US1] Implement ticket persistence and query repository in `src/Repositories/Eloquent/EloquentTicketRepository.php`
 
 #### Slice: Replies, notes, and activity history
 
-- [ ] T028 [P] [US1] Implement conversation entry and audit record models in `src/Models/ConversationEntry.php`
-- [ ] T029 [P] [US1] Implement reply and internal-note action contract in `src/Contracts/Tickets/AddsTicketReplies.php`
-- [ ] T030 [US1] Implement reply, internal note, and activity history actions in `src/Actions/Replies/AddReplyAction.php`
-- [ ] T031 [US1] Implement audit event recording listeners for ticket and reply flows in `src/Listeners/RecordTicketAuditTrail.php`
+- [x] T028 [P] [US1] Implement conversation entry and audit record models in `src/Models/ConversationEntry.php`
+- [x] T029 [P] [US1] Implement reply and internal-note action contract in `src/Contracts/Tickets/AddsTicketReplies.php`
+- [x] T030 [US1] Implement reply, internal note, and activity history actions in `src/Actions/Replies/AddReplyAction.php`
+- [x] T031 [US1] Implement audit event recording listeners for ticket and reply flows in `src/Listeners/RecordTicketAuditTrail.php`
 
 #### Slice: Assignment and queueing
 
-- [ ] T032 [P] [US1] Implement assignment, queue, and team models in `src/Models/Assignment.php`
-- [ ] T033 [P] [US1] Implement assignment contract and assignable-entity resolver in `src/Contracts/Tickets/AssignsTickets.php`
-- [ ] T034 [US1] Implement assignment and queue-routing actions in `src/Actions/Assignments/AssignTicketAction.php`
+- [x] T032 [P] [US1] Implement assignment, queue, and team models in `src/Models/Assignment.php`
+- [x] T033 [P] [US1] Implement assignment contract and assignable-entity resolver in `src/Contracts/Tickets/AssignsTickets.php`
+- [x] T034 [US1] Implement assignment and queue-routing actions in `src/Actions/Assignments/AssignTicketAction.php`
 
 #### Slice: Authorization and policies
 
-- [ ] T035 [P] [US1] Implement ticket role-mapping and actor-resolution contracts in `src/Contracts/Auth/MapsTicketRoles.php`
-- [ ] T036 [US1] Implement ticket, reply, and assignment policies in `src/Policies/TicketPolicy.php`
-- [ ] T037 [US1] Wire gates and policy registration into the package provider in `src/Providers/TicketingServiceProvider.php`
+- [x] T035 [P] [US1] Implement ticket role-mapping and actor-resolution contracts in `src/Contracts/Auth/MapsTicketRoles.php`
+- [x] T036 [US1] Implement ticket, reply, and assignment policies in `src/Policies/TicketPolicy.php`
+- [x] T037 [US1] Wire gates and policy registration into the package provider in `src/Providers/TicketingServiceProvider.php`
 
 #### Slice: Notifications and watchers
 
-- [ ] T038 [P] [US1] Implement watcher participant model and notification recipient contract in `src/Models/Watcher.php`
-- [ ] T039 [P] [US1] Implement ticket notification classes for mail, database, and broadcast channels in `src/Notifications/TicketCreatedNotification.php`
-- [ ] T040 [US1] Implement watcher sync, mention parsing, and notification routing listeners in `src/Listeners/DispatchTicketNotifications.php`
+- [x] T038 [P] [US1] Implement watcher participant model and notification recipient contract in `src/Models/Watcher.php`
+- [x] T039 [P] [US1] Implement ticket notification classes for mail, database, and broadcast channels in `src/Notifications/TicketCreatedNotification.php`
+- [x] T040 [US1] Implement watcher sync, mention parsing, and notification routing listeners in `src/Listeners/DispatchTicketNotifications.php`
 
 #### Slice: Attachments
 
-- [ ] T041 [P] [US1] Implement attachment model and validation rules in `src/Models/Attachment.php`
-- [ ] T042 [P] [US1] Implement attachment storage resolver and disk policy contract in `src/Contracts/Tickets/AttachmentStorage.php`
-- [ ] T043 [US1] Implement ticket and reply attachment handling service with configurable storage resolution in `src/Services/Attachments/AttachmentManager.php`
-- [ ] T044 [US1] Implement feature and integration coverage for replies, assignments, notifications, audit trail, attachment storage, and retrieval rules in `tests/Feature/Tickets/TicketCollaborationTest.php`
+- [x] T041 [P] [US1] Implement attachment model and validation rules in `src/Models/Attachment.php`
+- [x] T042 [P] [US1] Implement attachment storage resolver and disk policy contract in `src/Contracts/Tickets/AttachmentStorage.php`
+- [x] T043 [US1] Implement ticket and reply attachment handling service with configurable storage resolution in `src/Services/Attachments/AttachmentManager.php`
+- [x] T044 [US1] Implement feature and integration coverage for replies, assignments, notifications, audit trail, attachment storage, and retrieval rules in `tests/Feature/Tickets/TicketCollaborationTest.php`
 
 #### Slice: Minimal customer-facing and staff-facing experiences
 
-- [ ] T045 [P] [US1] Implement minimal portal ticket create/reply controllers in `src/Http/Controllers/Portal/PortalTicketController.php`
-- [ ] T046 [P] [US1] Implement minimal staff ticket workflow controllers in `src/Http/Controllers/Staff/TicketWorkflowController.php`
-- [ ] T047 [US1] Register core portal and staff routes for MVP lifecycle flows in `routes/portal.php`
+- [x] T045 [P] [US1] Implement minimal portal ticket create/reply controllers in `src/Http/Controllers/Portal/PortalTicketController.php`
+- [x] T046 [P] [US1] Implement minimal staff ticket workflow controllers in `src/Http/Controllers/Staff/TicketWorkflowController.php`
+- [x] T047 [US1] Register core portal and staff routes for MVP lifecycle flows in `routes/portal.php`
 
 **Checkpoint**: User Story 1 should now be fully functional and testable independently
 
