@@ -195,40 +195,40 @@ integrations.
 
 ### Tests for User Story 3
 
-- [ ] T066 [P] [US3] Create unit tests for mail threading, mailbox routing, reporting payloads, and tenant propagation in `tests/Unit/Integration/ExternalIntegrationRulesTest.php`
-- [ ] T067 [P] [US3] Create feature tests for API, portal, and staff adapter flows in `tests/Feature/Integration/ApiAndUiAdaptersTest.php`
-- [ ] T068 [P] [US3] Create integration tests for inbound mail, outbound sync, queues, routing, and extension hooks in `tests/Integration/Integration/EmailApiAndHooksTest.php`
+- [x] T066 [P] [US3] Create unit tests for mail threading, mailbox routing, reporting payloads, and tenant propagation in `tests/Unit/Integration/ExternalIntegrationRulesTest.php`
+- [x] T067 [P] [US3] Create feature tests for API, portal, and staff adapter flows in `tests/Feature/Integration/ApiAndUiAdaptersTest.php`
+- [x] T068 [P] [US3] Create integration tests for inbound mail, outbound sync, queues, routing, and extension hooks in `tests/Integration/Integration/EmailApiAndHooksTest.php`
 
 ### Implementation for User Story 3
 
 #### Slice: Email integration
 
-- [ ] T069 [P] [US3] Implement inbound and outbound email thread model in `src/Models/EmailThread.php`
-- [ ] T070 [P] [US3] Implement email ingestion, mailbox routing, and outbound mail contracts in `src/Contracts/Mail/ProcessesInboundTicketMail.php`
-- [ ] T071 [US3] Implement inbound parser, mailbox router, quarantine handling, outbound sync mailables, and queued mail jobs in `src/Services/Email/InboundTicketMailProcessor.php`
-- [ ] T072 [US3] Implement mailbox routing configuration and unmatched-message observability in `config/ticketing.php`
+- [x] T069 [P] [US3] Implement inbound and outbound email thread model in `src/Models/EmailThread.php`
+- [x] T070 [P] [US3] Implement email ingestion, mailbox routing, and outbound mail contracts in `src/Contracts/Mail/ProcessesInboundTicketMail.php`
+- [x] T071 [US3] Implement inbound parser, mailbox router, quarantine handling, outbound sync mailables, and queued mail jobs in `src/Services/Email/InboundTicketMailProcessor.php`
+- [x] T072 [US3] Implement mailbox routing configuration and unmatched-message observability in `config/ticketing.php`
 
 #### Slice: Reporting hooks and metrics
 
-- [ ] T073 [P] [US3] Implement reporting hook contracts and projection DTOs in `src/Contracts/Reporting/PublishesTicketMetrics.php`
-- [ ] T074 [US3] Implement reporting event dispatch and metrics publishing service in `src/Actions/Reporting/PublishTicketMetricsAction.php`
+- [x] T073 [P] [US3] Implement reporting hook contracts and projection DTOs in `src/Contracts/Reporting/PublishesTicketMetrics.php`
+- [x] T074 [US3] Implement reporting event dispatch and metrics publishing service in `src/Actions/Reporting/PublishTicketMetricsAction.php`
 
 #### Slice: API layer
 
-- [ ] T075 [P] [US3] Implement API requests and resources for tickets, replies, assignments, metadata, and custom fields in `src/Http/Requests/Api/CreateTicketRequest.php`
-- [ ] T076 [P] [US3] Implement REST API controllers for ticket lifecycle endpoints in `src/Http/Controllers/Api/TicketController.php`
-- [ ] T077 [US3] Register versioned package API routes and middleware in `routes/api.php`
+- [x] T075 [P] [US3] Implement API requests and resources for tickets, replies, assignments, metadata, and custom fields in `src/Http/Requests/Api/CreateTicketRequest.php`
+- [x] T076 [P] [US3] Implement REST API controllers for ticket lifecycle endpoints in `src/Http/Controllers/Api/TicketController.php`
+- [x] T077 [US3] Register versioned package API routes and middleware in `routes/api.php`
 
 #### Slice: Optional UI scaffolding
 
-- [ ] T078 [P] [US3] Implement richer staff-facing adapter controllers and route entry points in `src/Http/Controllers/Staff/TicketDashboardController.php`
-- [ ] T079 [P] [US3] Implement richer customer-portal adapter controllers and route entry points in `src/Http/Controllers/Portal/PortalTicketController.php`
-- [ ] T080 [US3] Add optional Blade view stubs and translation strings for portal and staff adapters in `resources/views/staff/tickets/index.blade.php`
+- [x] T078 [P] [US3] Implement richer staff-facing adapter controllers and route entry points in `src/Http/Controllers/Staff/TicketDashboardController.php`
+- [x] T079 [P] [US3] Implement richer customer-portal adapter controllers and route entry points in `src/Http/Controllers/Portal/PortalTicketController.php`
+- [x] T080 [US3] Add optional Blade view stubs and translation strings for portal and staff adapters in `resources/views/staff/tickets/index.blade.php`
 
 #### Slice: Events, contracts, and extension API hardening
 
-- [ ] T081 [US3] Implement documented extension bindings, event payload stability, and contract registration in `src/Providers/TicketingServiceProvider.php`
-- [ ] T082 [US3] Implement end-to-end integration coverage for API, email, reporting hooks, UI adapters, mailbox routing, and tenant-aware queues in `tests/Integration/Integration/EndToEndIntegrationTest.php`
+- [x] T081 [US3] Implement documented extension bindings, event payload stability, and contract registration in `src/Providers/TicketingServiceProvider.php`
+- [x] T082 [US3] Implement end-to-end integration coverage for API, email, reporting hooks, UI adapters, mailbox routing, and tenant-aware queues in `tests/Integration/Integration/EndToEndIntegrationTest.php`
 
 **Checkpoint**: All user stories should now be independently functional
 

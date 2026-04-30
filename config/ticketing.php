@@ -18,6 +18,7 @@ return [
         'automation_rule' => \Fereydooni\LaravelTicketing\Models\AutomationRule::class,
         'saved_view' => \Fereydooni\LaravelTicketing\Models\SavedView::class,
         'tag' => \Fereydooni\LaravelTicketing\Models\Tag::class,
+        'email_thread' => \Fereydooni\LaravelTicketing\Models\EmailThread::class,
     ],
 
     'features' => [
@@ -72,7 +73,13 @@ return [
 
     'mail' => [
         'inbound_enabled' => false,
+        'default_mailbox' => env('TICKETING_DEFAULT_MAILBOX', 'support'),
         'mailbox' => null,
+        'from' => [
+            'address' => env('TICKETING_MAIL_FROM_ADDRESS', 'support@example.test'),
+            'name' => env('TICKETING_MAIL_FROM_NAME', 'Support'),
+        ],
+        'quarantine_unmatched' => true,
     ],
 
     'queue' => [

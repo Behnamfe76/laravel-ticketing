@@ -281,6 +281,24 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        Schema::create('ticketing_email_threads', function (Blueprint $table): void {
+            $table->id();
+            $table->string('tenant_id')->nullable()->index();
+            $table->foreignId('ticket_id')->constrained('ticketing_tickets')->cascadeOnDelete();
+            $table->string('message_id')->index();
+            $table->string('in_reply_to')->nullable()->index();
+            $table->json('references')->nullable();
+            $table->string('direction');
+            $table->string('sender_address');
+            $table->json('recipient_addresses')->nullable();
+            $table->timestamp('processed_at')->nullable();
+            $table->string('status')->default('processed');
+            $table->json('meta')->nullable();
+            $table->timestamps();
+
+            $table->unique(['tenant_id', 'message_id']);
+        });
+
         Schema::create('ticketing_audit_records', function (Blueprint $table): void {
             $table->id();
             $table->string('tenant_id')->nullable()->index();
@@ -298,6 +316,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('ticketing_audit_records');
+        Schema::dropIfExists('ticketing_email_threads');
         Schema::dropIfExists('ticketing_custom_field_values');
         Schema::dropIfExists('ticketing_custom_field_definitions');
         Schema::dropIfExists('ticketing_automation_rules');

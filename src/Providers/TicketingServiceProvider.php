@@ -11,8 +11,11 @@ use Fereydooni\LaravelTicketing\Actions\Tickets\CreateTicketAction;
 use Fereydooni\LaravelTicketing\Contracts\Auth\MapsTicketRoles;
 use Fereydooni\LaravelTicketing\Contracts\Automation\ComputesSLADeadlines;
 use Fereydooni\LaravelTicketing\Contracts\Automation\EvaluatesAutomationRules;
+use Fereydooni\LaravelTicketing\Contracts\Mail\BuildsOutboundTicketMail;
+use Fereydooni\LaravelTicketing\Contracts\Mail\ProcessesInboundTicketMail;
 use Fereydooni\LaravelTicketing\Contracts\MultiTenancy\ResolvesTenantContext;
 use Fereydooni\LaravelTicketing\Contracts\Notifications\ResolvesNotificationRecipients;
+use Fereydooni\LaravelTicketing\Contracts\Reporting\PublishesTicketMetrics;
 use Fereydooni\LaravelTicketing\Contracts\Search\SearchesTickets;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AddsTicketReplies;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AssignsTickets;
@@ -22,7 +25,9 @@ use Fereydooni\LaravelTicketing\Contracts\Tickets\ResolvesAttachmentStorage;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Fereydooni\LaravelTicketing\Policies\TicketPolicy;
 use Fereydooni\LaravelTicketing\Repositories\Search\EloquentTicketSearchRepository;
+use Fereydooni\LaravelTicketing\Actions\Reporting\PublishTicketMetricsAction;
 use Fereydooni\LaravelTicketing\Services\Attachments\AttachmentManager;
+use Fereydooni\LaravelTicketing\Services\Email\InboundTicketMailProcessor;
 use Fereydooni\LaravelTicketing\Services\SLA\EscalationEngine;
 use Fereydooni\LaravelTicketing\Services\SLA\SLADeadlineCalculator;
 use Fereydooni\LaravelTicketing\Support\Auth\ConfigRoleMapper;
@@ -56,11 +61,16 @@ class TicketingServiceProvider extends ServiceProvider
         $this->app->bind(SearchesTickets::class, EloquentTicketSearchRepository::class);
         $this->app->bind(ComputesSLADeadlines::class, SLADeadlineCalculator::class);
         $this->app->bind(EvaluatesAutomationRules::class, EscalationEngine::class);
+        $this->app->bind(ProcessesInboundTicketMail::class, InboundTicketMailProcessor::class);
+        $this->app->bind(BuildsOutboundTicketMail::class, InboundTicketMailProcessor::class);
+        $this->app->bind(PublishesTicketMetrics::class, PublishTicketMetricsAction::class);
     }
 
     public function boot(): void
     {
         $this->loadMigrationsFrom($this->packagePath('database/migrations'));
+        $this->loadViewsFrom($this->packagePath('resources/views'), 'ticketing');
+        $this->loadTranslationsFrom($this->packagePath('resources/lang'), 'ticketing');
         $this->registerPolicies();
         $this->registerRoutes();
 
@@ -80,6 +90,10 @@ class TicketingServiceProvider extends ServiceProvider
         $this->publishes([
             $this->packagePath('resources/lang') => lang_path('vendor/ticketing'),
         ], 'ticketing-lang');
+
+        $this->publishes([
+            $this->packagePath('resources/views') => resource_path('views/vendor/ticketing'),
+        ], 'ticketing-views');
 
         $this->commands([
             InstallTicketingCommand::class,
@@ -106,6 +120,7 @@ class TicketingServiceProvider extends ServiceProvider
     {
         $portal = (array) config('ticketing.routes.portal', []);
         $staff = (array) config('ticketing.routes.staff', []);
+        $api = (array) config('ticketing.routes.api', []);
 
         if (($portal['enabled'] ?? false) === true) {
             Route::middleware($portal['middleware'] ?? ['web', 'auth'])
@@ -119,6 +134,13 @@ class TicketingServiceProvider extends ServiceProvider
                 ->prefix($staff['prefix'] ?? 'staff/tickets')
                 ->name('ticketing.staff.')
                 ->group($this->packagePath('routes/staff.php'));
+        }
+
+        if (($api['enabled'] ?? false) === true) {
+            Route::middleware($api['middleware'] ?? ['api', 'auth'])
+                ->prefix($api['prefix'] ?? 'api/ticketing')
+                ->name('ticketing.api.')
+                ->group($this->packagePath('routes/api.php'));
         }
     }
 }
