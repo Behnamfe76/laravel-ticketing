@@ -238,12 +238,12 @@ integrations.
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T083 [P] Add package README installation and incremental adoption guide in `README.md`
-- [ ] T084 [P] Add extension-point, config, event, and contract reference documentation in `docs/extensibility.md`
-- [ ] T085 [P] Add upgrade and versioning guide for future releases in `docs/upgrade.md`
-- [ ] T086 [P] Add compatibility matrix and package testing guidance in `docs/testing.md`
-- [ ] T087 Review public API, config keys, event names, route names, and storage contracts for semantic versioning impact in `specs/001-ticketing-package/contracts/extension-api.md`
-- [ ] T088 Run quickstart validation and align setup docs with install command, portal/staff MVP flows, and mailbox routing behavior in `specs/001-ticketing-package/quickstart.md`
+- [x] T083 [P] Add package README installation and incremental adoption guide in `README.md`
+- [x] T084 [P] Add extension-point, config, event, and contract reference documentation in `docs/extensibility.md`
+- [x] T085 [P] Add upgrade and versioning guide for future releases in `docs/upgrade.md`
+- [x] T086 [P] Add compatibility matrix and package testing guidance in `docs/testing.md`
+- [x] T087 Review public API, config keys, event names, route names, and storage contracts for semantic versioning impact in `specs/001-ticketing-package/contracts/extension-api.md`
+- [x] T088 Run quickstart validation and align setup docs with install command, portal/staff MVP flows, and mailbox routing behavior in `specs/001-ticketing-package/quickstart.md`
 
 ---
 

@@ -21,18 +21,23 @@ container bindings.
 - ticket
 - conversation entry
 - attachment
+- assignment
 - queue
 - team
+- watcher
+- SLA policy
+- automation rule
+- tag
 - custom field definition/value
 - saved view
 - audit record
+- email thread
 
 ## Core Contracts
 
 ### Auth & Actor Resolution
 
 - `ResolvesTicketActor`
-- `ResolvesAssignableEntities`
 - `MapsTicketRoles`
 
 ### Ticket Lifecycle
@@ -40,8 +45,9 @@ container bindings.
 - `CreatesTickets`
 - `UpdatesTickets`
 - `AddsTicketReplies`
-- `TransitionsTicketStatus`
 - `AssignsTickets`
+- `AttachmentStorage`
+- `ResolvesAttachmentStorage`
 
 ### Automation & SLA
 
@@ -53,7 +59,6 @@ container bindings.
 ### Notifications & Mail
 
 - `ResolvesNotificationRecipients`
-- `BuildsTicketNotifications`
 - `ProcessesInboundTicketMail`
 - `BuildsOutboundTicketMail`
 
@@ -66,23 +71,68 @@ container bindings.
 ### Multi-tenancy
 
 - `ResolvesTenantContext`
-- `AppliesTenantScope`
-- `PropagatesTenantContextToJobs`
+
+### Implemented Adapters
+
+- Portal routes under the configured `routes.portal.prefix`
+- Staff routes under the configured `routes.staff.prefix`
+- API routes under the configured `routes.api.prefix`
+- Staff Blade view stub published with `ticketing-views`
+- Translation strings published with `ticketing-lang`
 
 ## Event Surface
 
-The package dispatches explicit events for:
+The package currently dispatches explicit events for:
 
-- ticket created, updated, merged, resolved, reopened, closed
-- reply added, internal note added
-- attachment added or removed
-- assignment changed
-- watcher added, removed, or mentioned
-- automation executed
-- SLA warning and SLA breach
-- notification dispatched
-- inbound email processed
-- custom field definition changed
+- ticket created
+- ticket metrics published
+
+Audit records are persisted for:
+
+- ticket created
+- public reply added
+- internal note added
+- ticket assigned
+- ticket resolved
+
+Planned additive events include ticket updated, merged, reopened, closed, attachment
+added or removed, watcher changed or mentioned, automation executed, SLA warning or
+breach, notification dispatched, inbound email processed, and custom field definition
+changed.
+
+## Public Route Names
+
+- `ticketing.portal.tickets.index`
+- `ticketing.portal.tickets.store`
+- `ticketing.portal.tickets.show`
+- `ticketing.portal.tickets.replies.store`
+- `ticketing.staff.tickets.index`
+- `ticketing.staff.tickets.store`
+- `ticketing.staff.tickets.notes.store`
+- `ticketing.staff.tickets.assignments.store`
+- `ticketing.staff.tickets.resolve`
+- `ticketing.api.tickets.index`
+- `ticketing.api.tickets.store`
+- `ticketing.api.tickets.show`
+- `ticketing.api.tickets.replies.store`
+- `ticketing.api.tickets.assignments.store`
+- `ticketing.api.tickets.status-transitions.store`
+- `ticketing.api.metadata.index`
+
+## Public Config Keys
+
+- `models.*`
+- `features.portal`, `features.staff`, `features.api`, `features.mail`,
+  `features.notifications`, `features.broadcasting`, `features.queues`,
+  `features.attachments`, `features.multi_tenancy`
+- `routes.portal.*`, `routes.staff.*`, `routes.api.*`
+- `attachments.disk`, `attachments.directory`, `attachments.max_upload_size_kb`,
+  `attachments.visibility`, `attachments.signed_urls`
+- `auth.guard`, `auth.user_model`, `auth.morph_name`
+- `tenancy.enabled`, `tenancy.resolver`, `tenancy.column`
+- `mail.inbound_enabled`, `mail.default_mailbox`, `mail.mailbox`, `mail.from.*`,
+  `mail.quarantine_unmatched`
+- `queue.connection`, `queue.queue`
 
 ## Override Rules
 
