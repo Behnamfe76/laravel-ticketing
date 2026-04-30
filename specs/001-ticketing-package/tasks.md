@@ -144,41 +144,41 @@ tickets without editing package internals.
 
 ### Tests for User Story 2
 
-- [ ] T048 [P] [US2] Create unit tests for search filters, SLA calculations, escalation ordering, and automation precedence in `tests/Unit/Workflow/WorkflowRulesTest.php`
-- [ ] T049 [P] [US2] Create unit tests for custom field validators and normalization rules in `tests/Unit/Forms/CustomFieldValidationTest.php`
-- [ ] T050 [P] [US2] Create feature tests for admin workflow configuration and saved views in `tests/Feature/Admin/AdminWorkflowConfigurationTest.php`
-- [ ] T051 [P] [US2] Create integration tests for configurable metadata and tenant-aware behavior in `tests/Integration/Admin/ConfigurableWorkflowIntegrationTest.php`
+- [x] T048 [P] [US2] Create unit tests for search filters, SLA calculations, escalation ordering, and automation precedence in `tests/Unit/Workflow/WorkflowRulesTest.php`
+- [x] T049 [P] [US2] Create unit tests for custom field validators and normalization rules in `tests/Unit/Forms/CustomFieldValidationTest.php`
+- [x] T050 [P] [US2] Create feature tests for admin workflow configuration and saved views in `tests/Feature/Admin/AdminWorkflowConfigurationTest.php`
+- [x] T051 [P] [US2] Create integration tests for configurable metadata and tenant-aware behavior in `tests/Integration/Admin/ConfigurableWorkflowIntegrationTest.php`
 
 ### Implementation for User Story 2
 
 #### Slice: Search, filtering, tags, saved views
 
-- [ ] T052 [P] [US2] Implement tags and saved-view models in `src/Models/Tag.php`
-- [ ] T053 [P] [US2] Implement search and saved-view contracts in `src/Contracts/Search/SearchesTickets.php`
-- [ ] T054 [US2] Implement Eloquent ticket filtering and saved-view query services in `src/Repositories/Search/EloquentTicketSearchRepository.php`
+- [x] T052 [P] [US2] Implement tags and saved-view models in `src/Models/Tag.php`
+- [x] T053 [P] [US2] Implement search and saved-view contracts in `src/Contracts/Search/SearchesTickets.php`
+- [x] T054 [US2] Implement Eloquent ticket filtering and saved-view query services in `src/Repositories/Search/EloquentTicketSearchRepository.php`
 
 #### Slice: SLA, automation, escalation
 
-- [ ] T055 [P] [US2] Implement SLA policy and automation rule models in `src/Models/SLAPolicy.php`
-- [ ] T056 [P] [US2] Implement SLA, escalation engine, and automation contracts in `src/Contracts/Automation/ComputesSLADeadlines.php`
-- [ ] T057 [US2] Implement SLA calculation, escalation jobs, and automation execution services in `src/Services/SLA/SLADeadlineCalculator.php`
-- [ ] T058 [US2] Implement escalation engine scheduling, breach actions, and conflict resolution in `src/Services/SLA/EscalationEngine.php`
+- [x] T055 [P] [US2] Implement SLA policy and automation rule models in `src/Models/SLAPolicy.php`
+- [x] T056 [P] [US2] Implement SLA, escalation engine, and automation contracts in `src/Contracts/Automation/ComputesSLADeadlines.php`
+- [x] T057 [US2] Implement SLA calculation, escalation jobs, and automation execution services in `src/Services/SLA/SLADeadlineCalculator.php`
+- [x] T058 [US2] Implement escalation engine scheduling, breach actions, and conflict resolution in `src/Services/SLA/EscalationEngine.php`
 
 #### Slice: Custom fields and forms
 
-- [ ] T059 [P] [US2] Implement custom field definition and value models in `src/Models/CustomFieldDefinition.php`
-- [ ] T060 [P] [US2] Implement custom field validator, normalizer, and conditional visibility rules in `src/Support/Forms/CustomFieldValidator.php`
-- [ ] T061 [US2] Implement form schema builder and API/action validation parity in `src/Support/Forms/CustomFieldFormBuilder.php`
-- [ ] T062 [US2] Implement configurable metadata seeders and admin-facing workflow configuration actions in `src/Actions/Admin/SyncWorkflowConfigurationAction.php`
+- [x] T059 [P] [US2] Implement custom field definition and value models in `src/Models/CustomFieldDefinition.php`
+- [x] T060 [P] [US2] Implement custom field validator, normalizer, and conditional visibility rules in `src/Support/Forms/CustomFieldValidator.php`
+- [x] T061 [US2] Implement form schema builder and API/action validation parity in `src/Support/Forms/CustomFieldFormBuilder.php`
+- [x] T062 [US2] Implement configurable metadata seeders and admin-facing workflow configuration actions in `src/Actions/Admin/SyncWorkflowConfigurationAction.php`
 
 #### Slice: Authorization and policies extension
 
-- [ ] T063 [US2] Extend policies and permission mapping for queues, metadata management, saved views, and automation administration in `src/Policies/TicketAdministrationPolicy.php`
+- [x] T063 [US2] Extend policies and permission mapping for queues, metadata management, saved views, and automation administration in `src/Policies/TicketAdministrationPolicy.php`
 
 #### Slice: Multi-tenancy compatibility hardening
 
-- [ ] T064 [P] [US2] Implement tenant-aware repository and saved-view scoping support in `src/Repositories/Eloquent/TenantScopedTicketRepository.php`
-- [ ] T065 [US2] Implement tenant scope enforcement across tickets, queues, metadata, and admin actions in `src/Services/Tenancy/TenantScopeManager.php`
+- [x] T064 [P] [US2] Implement tenant-aware repository and saved-view scoping support in `src/Repositories/Eloquent/TenantScopedTicketRepository.php`
+- [x] T065 [US2] Implement tenant scope enforcement across tickets, queues, metadata, and admin actions in `src/Services/Tenancy/TenantScopeManager.php`
 
 **Checkpoint**: User Stories 1 and 2 should both work independently
 

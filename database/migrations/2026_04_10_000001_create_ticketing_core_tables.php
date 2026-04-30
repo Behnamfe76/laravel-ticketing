@@ -92,6 +92,23 @@ return new class extends Migration
             $table->unique(['tenant_id', 'slug']);
         });
 
+        Schema::create('ticketing_sla_policies', function (Blueprint $table): void {
+            $table->id();
+            $table->string('tenant_id')->nullable()->index();
+            $table->string('name');
+            $table->string('slug');
+            $table->text('description')->nullable();
+            $table->json('conditions')->nullable();
+            $table->unsignedInteger('response_target_minutes')->default(0);
+            $table->unsignedInteger('resolution_target_minutes')->default(0);
+            $table->json('calendar_rules')->nullable();
+            $table->unsignedBigInteger('escalation_rule_id')->nullable()->index();
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+
+            $table->unique(['tenant_id', 'slug']);
+        });
+
         Schema::create('ticketing_tickets', function (Blueprint $table): void {
             $table->id();
             $table->string('tenant_id')->nullable()->index();
@@ -184,6 +201,86 @@ return new class extends Migration
             $table->unique(['ticket_id', 'actor_type', 'actor_id', 'relation_type'], 'ticketing_watchers_unique_actor_relation');
         });
 
+        Schema::create('ticketing_tags', function (Blueprint $table): void {
+            $table->id();
+            $table->string('tenant_id')->nullable()->index();
+            $table->string('name');
+            $table->string('slug');
+            $table->string('color')->nullable();
+            $table->timestamps();
+
+            $table->unique(['tenant_id', 'slug']);
+        });
+
+        Schema::create('ticketing_tag_ticket', function (Blueprint $table): void {
+            $table->foreignId('ticket_id')->constrained('ticketing_tickets')->cascadeOnDelete();
+            $table->foreignId('tag_id')->constrained('ticketing_tags')->cascadeOnDelete();
+
+            $table->primary(['ticket_id', 'tag_id']);
+        });
+
+        Schema::create('ticketing_saved_views', function (Blueprint $table): void {
+            $table->id();
+            $table->string('tenant_id')->nullable()->index();
+            $table->nullableMorphs('owner');
+            $table->string('name');
+            $table->string('slug');
+            $table->string('scope')->default('private');
+            $table->json('filters')->nullable();
+            $table->json('columns')->nullable();
+            $table->json('sort')->nullable();
+            $table->timestamps();
+
+            $table->unique(['tenant_id', 'slug']);
+        });
+
+        Schema::create('ticketing_automation_rules', function (Blueprint $table): void {
+            $table->id();
+            $table->string('tenant_id')->nullable()->index();
+            $table->string('name');
+            $table->string('slug');
+            $table->string('trigger');
+            $table->json('conditions')->nullable();
+            $table->json('actions')->nullable();
+            $table->unsignedInteger('priority')->default(0);
+            $table->boolean('is_active')->default(true);
+            $table->boolean('stop_processing')->default(false);
+            $table->timestamps();
+
+            $table->index(['trigger', 'is_active', 'priority']);
+            $table->unique(['tenant_id', 'slug']);
+        });
+
+        Schema::create('ticketing_custom_field_definitions', function (Blueprint $table): void {
+            $table->id();
+            $table->string('tenant_id')->nullable()->index();
+            $table->string('scope')->default('ticket');
+            $table->string('name');
+            $table->string('slug');
+            $table->string('field_type');
+            $table->string('label');
+            $table->text('help_text')->nullable();
+            $table->boolean('is_required')->default(false);
+            $table->boolean('is_active')->default(true);
+            $table->json('validation_rules')->nullable();
+            $table->json('options')->nullable();
+            $table->unsignedInteger('display_order')->default(0);
+            $table->json('visibility_rules')->nullable();
+            $table->timestamps();
+
+            $table->unique(['tenant_id', 'scope', 'slug'], 'ticketing_custom_fields_unique_scope_slug');
+        });
+
+        Schema::create('ticketing_custom_field_values', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('field_definition_id')->constrained('ticketing_custom_field_definitions')->cascadeOnDelete();
+            $table->morphs('valuable');
+            $table->string('tenant_id')->nullable()->index();
+            $table->json('value')->nullable();
+            $table->string('normalized_value')->nullable()->index();
+            $table->timestamps();
+        });
+
         Schema::create('ticketing_audit_records', function (Blueprint $table): void {
             $table->id();
             $table->string('tenant_id')->nullable()->index();
@@ -201,6 +298,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('ticketing_audit_records');
+        Schema::dropIfExists('ticketing_custom_field_values');
+        Schema::dropIfExists('ticketing_custom_field_definitions');
+        Schema::dropIfExists('ticketing_automation_rules');
+        Schema::dropIfExists('ticketing_saved_views');
+        Schema::dropIfExists('ticketing_tag_ticket');
+        Schema::dropIfExists('ticketing_tags');
         Schema::dropIfExists('ticketing_watchers');
         Schema::dropIfExists('ticketing_assignments');
         Schema::dropIfExists('ticketing_attachments');
@@ -208,6 +311,7 @@ return new class extends Migration
         Schema::dropIfExists('ticketing_tickets');
         Schema::dropIfExists('ticketing_teams');
         Schema::dropIfExists('ticketing_queues');
+        Schema::dropIfExists('ticketing_sla_policies');
         Schema::dropIfExists('ticketing_types');
         Schema::dropIfExists('ticketing_categories');
         Schema::dropIfExists('ticketing_priorities');

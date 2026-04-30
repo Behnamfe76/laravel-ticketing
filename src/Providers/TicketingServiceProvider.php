@@ -9,8 +9,11 @@ use Fereydooni\LaravelTicketing\Actions\Assignments\AssignTicketAction;
 use Fereydooni\LaravelTicketing\Actions\Replies\AddReplyAction;
 use Fereydooni\LaravelTicketing\Actions\Tickets\CreateTicketAction;
 use Fereydooni\LaravelTicketing\Contracts\Auth\MapsTicketRoles;
+use Fereydooni\LaravelTicketing\Contracts\Automation\ComputesSLADeadlines;
+use Fereydooni\LaravelTicketing\Contracts\Automation\EvaluatesAutomationRules;
 use Fereydooni\LaravelTicketing\Contracts\MultiTenancy\ResolvesTenantContext;
 use Fereydooni\LaravelTicketing\Contracts\Notifications\ResolvesNotificationRecipients;
+use Fereydooni\LaravelTicketing\Contracts\Search\SearchesTickets;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AddsTicketReplies;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AssignsTickets;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AttachmentStorage as AttachmentStorageContract;
@@ -18,7 +21,10 @@ use Fereydooni\LaravelTicketing\Contracts\Tickets\CreatesTickets;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\ResolvesAttachmentStorage;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Fereydooni\LaravelTicketing\Policies\TicketPolicy;
+use Fereydooni\LaravelTicketing\Repositories\Search\EloquentTicketSearchRepository;
 use Fereydooni\LaravelTicketing\Services\Attachments\AttachmentManager;
+use Fereydooni\LaravelTicketing\Services\SLA\EscalationEngine;
+use Fereydooni\LaravelTicketing\Services\SLA\SLADeadlineCalculator;
 use Fereydooni\LaravelTicketing\Support\Auth\ConfigRoleMapper;
 use Fereydooni\LaravelTicketing\Support\Notifications\ConfigNotificationRecipientResolver;
 use Illuminate\Support\Facades\Gate;
@@ -47,6 +53,9 @@ class TicketingServiceProvider extends ServiceProvider
         $this->app->bind(CreatesTickets::class, CreateTicketAction::class);
         $this->app->bind(AddsTicketReplies::class, AddReplyAction::class);
         $this->app->bind(AssignsTickets::class, AssignTicketAction::class);
+        $this->app->bind(SearchesTickets::class, EloquentTicketSearchRepository::class);
+        $this->app->bind(ComputesSLADeadlines::class, SLADeadlineCalculator::class);
+        $this->app->bind(EvaluatesAutomationRules::class, EscalationEngine::class);
     }
 
     public function boot(): void

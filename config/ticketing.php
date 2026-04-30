@@ -14,6 +14,10 @@ return [
         'audit_record' => \Fereydooni\LaravelTicketing\Models\AuditRecord::class,
         'custom_field_definition' => \Fereydooni\LaravelTicketing\Models\CustomFieldDefinition::class,
         'custom_field_value' => \Fereydooni\LaravelTicketing\Models\CustomFieldValue::class,
+        'sla_policy' => \Fereydooni\LaravelTicketing\Models\SLAPolicy::class,
+        'automation_rule' => \Fereydooni\LaravelTicketing\Models\AutomationRule::class,
+        'saved_view' => \Fereydooni\LaravelTicketing\Models\SavedView::class,
+        'tag' => \Fereydooni\LaravelTicketing\Models\Tag::class,
     ],
 
     'features' => [
