@@ -44,15 +44,15 @@ delivery incremental and non-chaotic.
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T008 Create base publishable migrations for shared ticketing tables in `database/migrations/2026_04_10_000001_create_ticketing_core_tables.php`
-- [ ] T009 [P] Create foundational contracts for actor, tenant, and model resolution in `src/Contracts/Auth/ResolvesTicketActor.php`
-- [ ] T010 [P] Create package model base classes and morph-friendly relationships in `src/Models/Ticket.php`
-- [ ] T011 [P] Create shared domain events and event payload conventions in `src/Events/TicketCreated.php`
-- [ ] T012 [P] Create audit logging infrastructure and immutable audit record model in `src/Models/AuditRecord.php`
-- [ ] T013 [P] Create queue-safe tenant context propagation support in `src/Services/Tenancy/TenantContext.php`
-- [ ] T014 [P] Create package integration test covering auto-discovery, config publishing, and migrations in `tests/Integration/PackageBootTest.php`
-- [ ] T015 [P] Create tenant resolver and scope application contracts in `src/Contracts/MultiTenancy/ResolvesTenantContext.php`
-- [ ] T016 [P] Create attachment storage abstraction contracts in `src/Contracts/Tickets/ResolvesAttachmentStorage.php`
+- [x] T008 Create base publishable migrations for shared ticketing tables in `database/migrations/2026_04_10_000001_create_ticketing_core_tables.php`
+- [x] T009 [P] Create foundational contracts for actor, tenant, and model resolution in `src/Contracts/Auth/ResolvesTicketActor.php`
+- [x] T010 [P] Create package model base classes and morph-friendly relationships in `src/Models/Ticket.php`
+- [x] T011 [P] Create shared domain events and event payload conventions in `src/Events/TicketCreated.php`
+- [x] T012 [P] Create audit logging infrastructure and immutable audit record model in `src/Models/AuditRecord.php`
+- [x] T013 [P] Create queue-safe tenant context propagation support in `src/Services/Tenancy/TenantContext.php`
+- [x] T014 [P] Create package integration test covering auto-discovery, config publishing, and migrations in `tests/Integration/PackageBootTest.php`
+- [x] T015 [P] Create tenant resolver and scope application contracts in `src/Contracts/MultiTenancy/ResolvesTenantContext.php`
+- [x] T016 [P] Create attachment storage abstraction contracts in `src/Contracts/Tickets/ResolvesAttachmentStorage.php`
 
 **Checkpoint**: Foundation ready; user story implementation can now begin in parallel
 

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Fereydooni\LaravelTicketing\Providers;
 
 use Fereydooni\LaravelTicketing\Console\Commands\InstallTicketingCommand;
+use Fereydooni\LaravelTicketing\Contracts\MultiTenancy\ResolvesTenantContext;
+use Fereydooni\LaravelTicketing\Services\Tenancy\TenantContext;
 use Illuminate\Support\ServiceProvider;
 
 class TicketingServiceProvider extends ServiceProvider
@@ -16,10 +18,15 @@ class TicketingServiceProvider extends ServiceProvider
             $this->packagePath('config/ticketing-permissions.php'),
             'ticketing-permissions'
         );
+
+        $this->app->singleton(TenantContext::class);
+        $this->app->alias(TenantContext::class, ResolvesTenantContext::class);
     }
 
     public function boot(): void
     {
+        $this->loadMigrationsFrom($this->packagePath('database/migrations'));
+
         if (! $this->app->runningInConsole()) {
             return;
         }
