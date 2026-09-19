@@ -8,6 +8,9 @@ use Fereydooni\LaravelTicketing\Console\Commands\InstallTicketingCommand;
 use Fereydooni\LaravelTicketing\Actions\Assignments\AssignTicketAction;
 use Fereydooni\LaravelTicketing\Actions\Replies\AddReplyAction;
 use Fereydooni\LaravelTicketing\Actions\Tickets\CreateTicketAction;
+use Fereydooni\LaravelTicketing\Actions\Tickets\TransitionTicketAction;
+use Fereydooni\LaravelTicketing\Actions\Tickets\UpdateTicketAction;
+use Fereydooni\LaravelTicketing\Actions\Watchers\ManageWatchersAction;
 use Fereydooni\LaravelTicketing\Contracts\Auth\MapsTicketRoles;
 use Fereydooni\LaravelTicketing\Contracts\Automation\ComputesSLADeadlines;
 use Fereydooni\LaravelTicketing\Contracts\Automation\EvaluatesAutomationRules;
@@ -21,7 +24,11 @@ use Fereydooni\LaravelTicketing\Contracts\Tickets\AddsTicketReplies;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AssignsTickets;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AttachmentStorage as AttachmentStorageContract;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\CreatesTickets;
+use Fereydooni\LaravelTicketing\Contracts\Tickets\ManagesWatchers;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\ResolvesAttachmentStorage;
+use Fereydooni\LaravelTicketing\Contracts\Tickets\TransitionsTickets;
+use Fereydooni\LaravelTicketing\Contracts\Tickets\UpdatesTickets;
+use Fereydooni\LaravelTicketing\Listeners\DispatchTicketNotifications;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Fereydooni\LaravelTicketing\Policies\TicketPolicy;
 use Fereydooni\LaravelTicketing\Repositories\Search\EloquentTicketSearchRepository;
@@ -32,6 +39,8 @@ use Fereydooni\LaravelTicketing\Services\SLA\EscalationEngine;
 use Fereydooni\LaravelTicketing\Services\SLA\SLADeadlineCalculator;
 use Fereydooni\LaravelTicketing\Support\Auth\ConfigRoleMapper;
 use Fereydooni\LaravelTicketing\Support\Notifications\ConfigNotificationRecipientResolver;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Fereydooni\LaravelTicketing\Services\Tenancy\TenantContext;
@@ -48,7 +57,14 @@ class TicketingServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(TenantContext::class);
-        $this->app->alias(TenantContext::class, ResolvesTenantContext::class);
+
+        $this->app->singleton(ResolvesTenantContext::class, function (Application $app): ResolvesTenantContext {
+            $resolver = config('ticketing.tenancy.resolver');
+
+            return is_string($resolver) && $resolver !== ''
+                ? $app->make($resolver)
+                : $app->make(TenantContext::class);
+        });
 
         $this->app->singleton(MapsTicketRoles::class, ConfigRoleMapper::class);
         $this->app->singleton(ResolvesNotificationRecipients::class, ConfigNotificationRecipientResolver::class);
@@ -58,6 +74,9 @@ class TicketingServiceProvider extends ServiceProvider
         $this->app->bind(CreatesTickets::class, CreateTicketAction::class);
         $this->app->bind(AddsTicketReplies::class, AddReplyAction::class);
         $this->app->bind(AssignsTickets::class, AssignTicketAction::class);
+        $this->app->bind(TransitionsTickets::class, TransitionTicketAction::class);
+        $this->app->bind(UpdatesTickets::class, UpdateTicketAction::class);
+        $this->app->bind(ManagesWatchers::class, ManageWatchersAction::class);
         $this->app->bind(SearchesTickets::class, EloquentTicketSearchRepository::class);
         $this->app->bind(ComputesSLADeadlines::class, SLADeadlineCalculator::class);
         $this->app->bind(EvaluatesAutomationRules::class, EscalationEngine::class);
@@ -68,11 +87,15 @@ class TicketingServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadMigrationsFrom($this->packagePath('database/migrations'));
+        if (config('ticketing.migrations.load', true)) {
+            $this->loadMigrationsFrom($this->packagePath('database/migrations'));
+        }
+
         $this->loadViewsFrom($this->packagePath('resources/views'), 'ticketing');
         $this->loadTranslationsFrom($this->packagePath('resources/lang'), 'ticketing');
         $this->registerPolicies();
         $this->registerRoutes();
+        $this->registerNotifications();
 
         if (! $this->app->runningInConsole()) {
             return;
@@ -116,31 +139,35 @@ class TicketingServiceProvider extends ServiceProvider
         Gate::policy(Ticket::class, TicketPolicy::class);
     }
 
+    /**
+     * Register each HTTP adapter only when both its feature switch and its route group are on.
+     */
     protected function registerRoutes(): void
     {
-        $portal = (array) config('ticketing.routes.portal', []);
-        $staff = (array) config('ticketing.routes.staff', []);
-        $api = (array) config('ticketing.routes.api', []);
+        $groups = [
+            'portal' => ['prefix' => 'tickets', 'middleware' => ['web', 'auth'], 'name' => 'ticketing.portal.'],
+            'staff' => ['prefix' => 'staff/tickets', 'middleware' => ['web', 'auth'], 'name' => 'ticketing.staff.'],
+            'api' => ['prefix' => 'api/ticketing', 'middleware' => ['api', 'auth'], 'name' => 'ticketing.api.'],
+        ];
 
-        if (($portal['enabled'] ?? false) === true) {
-            Route::middleware($portal['middleware'] ?? ['web', 'auth'])
-                ->prefix($portal['prefix'] ?? 'tickets')
-                ->name('ticketing.portal.')
-                ->group($this->packagePath('routes/portal.php'));
+        foreach ($groups as $group => $defaults) {
+            $route = (array) config("ticketing.routes.{$group}", []);
+
+            if (config("ticketing.features.{$group}") !== true || ($route['enabled'] ?? false) !== true) {
+                continue;
+            }
+
+            Route::middleware($route['middleware'] ?? $defaults['middleware'])
+                ->prefix($route['prefix'] ?? $defaults['prefix'])
+                ->name($defaults['name'])
+                ->group($this->packagePath("routes/{$group}.php"));
         }
+    }
 
-        if (($staff['enabled'] ?? false) === true) {
-            Route::middleware($staff['middleware'] ?? ['web', 'auth'])
-                ->prefix($staff['prefix'] ?? 'staff/tickets')
-                ->name('ticketing.staff.')
-                ->group($this->packagePath('routes/staff.php'));
-        }
-
-        if (($api['enabled'] ?? false) === true) {
-            Route::middleware($api['middleware'] ?? ['api', 'auth'])
-                ->prefix($api['prefix'] ?? 'api/ticketing')
-                ->name('ticketing.api.')
-                ->group($this->packagePath('routes/api.php'));
+    protected function registerNotifications(): void
+    {
+        if (config('ticketing.features.notifications') === true) {
+            Event::subscribe(DispatchTicketNotifications::class);
         }
     }
 }

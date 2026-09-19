@@ -24,9 +24,8 @@ class CreateTicketRequest extends FormRequest
             'priority_id' => ['nullable', 'integer'],
             'category_id' => ['nullable', 'integer'],
             'type_id' => ['nullable', 'integer'],
-            'custom_fields' => ['nullable', 'array'],
-            'tags' => ['nullable', 'array'],
-            'watchers' => ['nullable', 'array'],
+            'files' => ['nullable', 'array', 'max:10'],
+            'files.*' => ['file', 'max:' . (int) config('ticketing.attachments.max_upload_size_kb', 10240)],
         ];
     }
 }

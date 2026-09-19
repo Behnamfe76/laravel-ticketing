@@ -6,9 +6,11 @@ namespace Fereydooni\LaravelTicketing\Actions\Assignments;
 
 use Fereydooni\LaravelTicketing\Contracts\MultiTenancy\ResolvesTenantContext;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AssignsTickets;
+use Fereydooni\LaravelTicketing\Events\TicketAssigned;
 use Fereydooni\LaravelTicketing\Listeners\RecordTicketAuditTrail;
 use Fereydooni\LaravelTicketing\Models\Assignment;
 use Fereydooni\LaravelTicketing\Models\Ticket;
+use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -35,7 +37,7 @@ class AssignTicketAction implements AssignsTickets
                 'tenant_id' => $this->tenantContext->id() ?? $ticket->tenant_id,
                 'target_type' => $target['target_type'],
                 'target_id' => (string) $target['target_id'],
-                'assigned_by_type' => $actor?->getMorphClass() ?? ($actor ? $actor::class : null),
+                'assigned_by_type' => ActorType::of($actor),
                 'assigned_by_id' => $actor?->getAuthIdentifier(),
                 'reason' => $target['reason'] ?? null,
                 'is_current' => true,
@@ -49,6 +51,7 @@ class AssignTicketAction implements AssignsTickets
             ])->save();
 
             app(RecordTicketAuditTrail::class)->ticketAssigned($ticket, $assignment, $actor);
+            TicketAssigned::dispatch($ticket, $assignment, $actor);
 
             return $assignment->refresh();
         });

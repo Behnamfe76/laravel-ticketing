@@ -57,6 +57,7 @@ class ApiAndUiAdaptersTest extends TestCase
     public function test_portal_and_staff_adapter_indexes_return_ticket_resources(): void
     {
         $actor = $this->user();
+        $staff = $this->user(['ticket.view_any']);
 
         $this->actingAs($actor)
             ->postJson('/tickets', ['subject' => 'Portal visible'])
@@ -67,9 +68,31 @@ class ApiAndUiAdaptersTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.subject', 'Portal visible');
 
-        $this->actingAs($actor)
+        $this->actingAs($staff)
             ->getJson('/staff/tickets')
             ->assertOk()
             ->assertJsonPath('data.0.subject', 'Portal visible');
+    }
+
+    public function test_staff_index_is_forbidden_without_view_any(): void
+    {
+        $this->actingAs($this->user())
+            ->getJson('/staff/tickets')
+            ->assertForbidden();
+    }
+
+    public function test_api_index_lists_only_the_actors_own_tickets(): void
+    {
+        $alice = $this->user();
+        $bob = $this->user();
+
+        $this->actingAs($alice)->postJson('/api/ticketing/tickets', ['subject' => 'Alice ticket'])->assertCreated();
+        $this->actingAs($bob)->postJson('/api/ticketing/tickets', ['subject' => 'Bob ticket'])->assertCreated();
+
+        $this->actingAs($alice)
+            ->getJson('/api/ticketing/tickets')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.subject', 'Alice ticket');
     }
 }

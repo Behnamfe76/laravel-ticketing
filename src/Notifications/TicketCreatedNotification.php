@@ -24,10 +24,7 @@ class TicketCreatedNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return array_values(array_filter([
-            'database',
-            config('ticketing.features.notifications') ? 'mail' : null,
-        ]));
+        return array_values((array) config('ticketing.notifications.channels', ['database', 'mail']));
     }
 
     public function toMail(object $notifiable): MailMessage

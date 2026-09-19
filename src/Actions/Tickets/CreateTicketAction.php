@@ -13,6 +13,8 @@ use Fereydooni\LaravelTicketing\Models\Status;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Fereydooni\LaravelTicketing\Repositories\Eloquent\EloquentTicketRepository;
 use Fereydooni\LaravelTicketing\Services\Attachments\AttachmentManager;
+use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
+use Fereydooni\LaravelTicketing\Support\Tickets\TaxonomyReferences;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -25,6 +27,7 @@ class CreateTicketAction implements CreatesTickets
         protected ResolvesTenantContext $tenantContext,
         protected AttachmentManager $attachments,
         protected AssignTicketAction $assignments,
+        protected TaxonomyReferences $taxonomy,
     ) {
     }
 
@@ -34,15 +37,17 @@ class CreateTicketAction implements CreatesTickets
             throw new InvalidArgumentException('Ticket subject is required.');
         }
 
+        $this->taxonomy->assertExist($attributes);
+
         return DB::transaction(function () use ($attributes, $actor): Ticket {
             $ticket = $this->tickets->create([
                 'tenant_id' => $this->tenantContext->id(),
                 'number' => $attributes['number'] ?? $this->nextNumber(),
                 'subject' => $attributes['subject'],
                 'description' => $attributes['description'] ?? null,
-                'requester_type' => $actor?->getMorphClass() ?? ($actor ? $actor::class : null),
+                'requester_type' => ActorType::of($actor),
                 'requester_id' => $actor?->getAuthIdentifier(),
-                'creator_type' => $actor?->getMorphClass() ?? ($actor ? $actor::class : null),
+                'creator_type' => ActorType::of($actor),
                 'creator_id' => $actor?->getAuthIdentifier(),
                 'status_id' => $attributes['status_id'] ?? $this->defaultStatus()?->getKey(),
                 'priority_id' => $attributes['priority_id'] ?? null,
@@ -54,8 +59,14 @@ class CreateTicketAction implements CreatesTickets
                 'meta' => $attributes['meta'] ?? [],
             ]);
 
+            // `attachments` is trusted metadata from host code; `uploads` are UploadedFile
+            // instances and are stored by the package.
             foreach ((array) ($attributes['attachments'] ?? []) as $attachment) {
                 $this->attachments->attach($ticket, (array) $attachment);
+            }
+
+            foreach ((array) ($attributes['uploads'] ?? []) as $upload) {
+                $this->attachments->store($ticket, $upload, $actor);
             }
 
             if (isset($attributes['assignment']) && is_array($attributes['assignment'])) {
@@ -63,7 +74,7 @@ class CreateTicketAction implements CreatesTickets
             }
 
             app(RecordTicketAuditTrail::class)->ticketCreated($ticket, $actor);
-            TicketCreated::dispatch($ticket, ['source' => $ticket->source]);
+            TicketCreated::dispatch($ticket, ['source' => $ticket->source], $actor);
 
             return $ticket->refresh();
         });

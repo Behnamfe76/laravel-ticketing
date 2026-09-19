@@ -6,11 +6,12 @@ namespace Fereydooni\LaravelTicketing\Actions\Replies;
 
 use Fereydooni\LaravelTicketing\Contracts\MultiTenancy\ResolvesTenantContext;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AddsTicketReplies;
-use Fereydooni\LaravelTicketing\Listeners\DispatchTicketNotifications;
+use Fereydooni\LaravelTicketing\Events\TicketReplyAdded;
 use Fereydooni\LaravelTicketing\Listeners\RecordTicketAuditTrail;
 use Fereydooni\LaravelTicketing\Models\ConversationEntry;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Fereydooni\LaravelTicketing\Services\Attachments\AttachmentManager;
+use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -34,7 +35,7 @@ class AddReplyAction implements AddsTicketReplies
 
             $entry = $ticket->conversationEntries()->create([
                 'tenant_id' => $this->tenantContext->id() ?? $ticket->tenant_id,
-                'author_type' => $actor?->getMorphClass() ?? ($actor ? $actor::class : null),
+                'author_type' => ActorType::of($actor),
                 'author_id' => $actor?->getAuthIdentifier(),
                 'entry_type' => $entryType,
                 'body' => $attributes['body'],
@@ -44,14 +45,20 @@ class AddReplyAction implements AddsTicketReplies
                 'meta' => ['mentions' => $attributes['mentions'] ?? []],
             ]);
 
+            // `attachments` is trusted metadata from host code; `uploads` are UploadedFile
+            // instances and are stored by the package.
             foreach ((array) ($attributes['attachments'] ?? []) as $attachment) {
                 $this->attachments->attach($entry, (array) $attachment);
+            }
+
+            foreach ((array) ($attributes['uploads'] ?? []) as $upload) {
+                $this->attachments->store($entry, $upload, $actor, $entry->visibility_scope);
             }
 
             $ticket->forceFill(['last_activity_at' => now()])->save();
 
             app(RecordTicketAuditTrail::class)->replyAdded($ticket, $entry, $actor);
-            app(DispatchTicketNotifications::class)->replyAdded($ticket, $entry);
+            TicketReplyAdded::dispatch($ticket, $entry, $actor);
 
             return $entry->refresh();
         });

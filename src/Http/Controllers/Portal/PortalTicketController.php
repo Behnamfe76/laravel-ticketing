@@ -6,6 +6,7 @@ namespace Fereydooni\LaravelTicketing\Http\Controllers\Portal;
 
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AddsTicketReplies;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\CreatesTickets;
+use Fereydooni\LaravelTicketing\Http\Controllers\Concerns\HandlesTicketParticipation;
 use Fereydooni\LaravelTicketing\Http\Resources\Api\TicketResource;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Fereydooni\LaravelTicketing\Repositories\Eloquent\EloquentTicketRepository;
@@ -17,6 +18,7 @@ use Illuminate\Routing\Controller;
 class PortalTicketController extends Controller
 {
     use AuthorizesRequests;
+    use HandlesTicketParticipation;
 
     public function index(Request $request, EloquentTicketRepository $tickets)
     {
@@ -27,7 +29,7 @@ class PortalTicketController extends Controller
     {
         $this->authorize('view', $ticket);
 
-        return new TicketResource($ticket->load(['conversationEntries', 'attachments']));
+        return new TicketResource($ticket->load(['conversationEntries.attachments', 'attachments']));
     }
 
     public function store(Request $request, CreatesTickets $tickets): JsonResponse

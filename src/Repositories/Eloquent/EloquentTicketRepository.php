@@ -40,20 +40,6 @@ class EloquentTicketRepository
             return $query->whereRaw('1 = 0');
         }
 
-        return $query->where(function (Builder $query) use ($actor): void {
-            $query
-                ->where(function (Builder $query) use ($actor): void {
-                    $query->where('requester_type', $actor::class)
-                        ->where('requester_id', $actor->getAuthIdentifier());
-                })
-                ->orWhere(function (Builder $query) use ($actor): void {
-                    $query->where('creator_type', $actor::class)
-                        ->where('creator_id', $actor->getAuthIdentifier());
-                })
-                ->orWhereHas('watchers', function (Builder $query) use ($actor): void {
-                    $query->where('actor_type', $actor::class)
-                        ->where('actor_id', $actor->getAuthIdentifier());
-                });
-        });
+        return $query->visibleTo($actor);
     }
 }

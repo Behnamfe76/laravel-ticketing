@@ -6,6 +6,7 @@ return [
     'abilities' => [
         'ticket.create' => 'Create tickets from staff, portal, or workflow entry points.',
         'ticket.view' => 'View ticket details within the actor visibility scope.',
+        'ticket.view_any' => 'List and search every ticket in the current tenant, not only the actor\'s own.',
         'ticket.reply' => 'Add public replies to a ticket.',
         'ticket.note' => 'Add internal notes to a ticket.',
         'ticket.assign' => 'Assign tickets to a user, team, or queue.',
@@ -22,6 +23,7 @@ return [
         ],
         'agent' => [
             'ticket.view',
+            'ticket.view_any',
             'ticket.reply',
             'ticket.note',
             'ticket.assign',
@@ -29,6 +31,7 @@ return [
         ],
         'administrator' => [
             'ticket.view',
+            'ticket.view_any',
             'ticket.reply',
             'ticket.note',
             'ticket.assign',

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Fereydooni\LaravelTicketing\Models;
 
+use Fereydooni\LaravelTicketing\Models\Concerns\BelongsToTicketingTenant;
+use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ticket extends Model
 {
+    use BelongsToTicketingTenant;
     use SoftDeletes;
 
     protected $table = 'ticketing_tickets';
@@ -104,6 +108,30 @@ class Ticket extends Model
     public function scopeForTenant(Builder $query, int|string|null $tenantId): Builder
     {
         return $query->where('tenant_id', $tenantId);
+    }
+
+    /**
+     * Tickets the actor takes part in: as requester, creator, or watcher.
+     *
+     * Actors are matched by `getMorphClass()`, the same value the package writes, so hosts that
+     * register a morph map see their own tickets.
+     */
+    public function scopeVisibleTo(Builder $query, Authenticatable $actor): Builder
+    {
+        $type = ActorType::of($actor);
+        $id = $actor->getAuthIdentifier();
+
+        return $query->where(function (Builder $query) use ($type, $id): void {
+            $query
+                ->where(fn (Builder $query) => $query->where('requester_type', $type)->where('requester_id', $id))
+                ->orWhere(fn (Builder $query) => $query->where('creator_type', $type)->where('creator_id', $id))
+                ->orWhereHas('watchers', fn (Builder $query) => $query->where('actor_type', $type)->where('actor_id', $id));
+        });
+    }
+
+    public function isVisibleTo(Authenticatable $actor): bool
+    {
+        return static::query()->whereKey($this->getKey())->visibleTo($actor)->exists();
     }
 
     public function markResolved(): void
