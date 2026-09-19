@@ -17,6 +17,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
 
 class CreateTicketAction implements CreatesTickets
 {
@@ -40,9 +41,9 @@ class CreateTicketAction implements CreatesTickets
                 'number' => $attributes['number'] ?? $this->nextNumber(),
                 'subject' => $attributes['subject'],
                 'description' => $attributes['description'] ?? null,
-                'requester_type' => $actor?->getMorphClass() ?? ($actor ? $actor::class : null),
+                'requester_type' => ActorType::of($actor),
                 'requester_id' => $actor?->getAuthIdentifier(),
-                'creator_type' => $actor?->getMorphClass() ?? ($actor ? $actor::class : null),
+                'creator_type' => ActorType::of($actor),
                 'creator_id' => $actor?->getAuthIdentifier(),
                 'status_id' => $attributes['status_id'] ?? $this->defaultStatus()?->getKey(),
                 'priority_id' => $attributes['priority_id'] ?? null,
@@ -63,7 +64,7 @@ class CreateTicketAction implements CreatesTickets
             }
 
             app(RecordTicketAuditTrail::class)->ticketCreated($ticket, $actor);
-            TicketCreated::dispatch($ticket, ['source' => $ticket->source]);
+            TicketCreated::dispatch($ticket, ['source' => $ticket->source], $actor);
 
             return $ticket->refresh();
         });

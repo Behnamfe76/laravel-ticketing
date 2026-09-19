@@ -4,18 +4,38 @@ declare(strict_types=1);
 
 namespace Fereydooni\LaravelTicketing\Repositories\Search;
 
+use Fereydooni\LaravelTicketing\Contracts\Auth\MapsTicketRoles;
 use Fereydooni\LaravelTicketing\Contracts\Search\SearchesTickets;
 use Fereydooni\LaravelTicketing\Models\SavedView;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 class EloquentTicketSearchRepository implements SearchesTickets
 {
+    public function __construct(protected MapsTicketRoles $roles)
+    {
+    }
+
+    /**
+     * Search within what the actor may see: every ticket for `ticket.view_any` holders and only
+     * their own tickets for everyone else.
+     *
+     * A null actor is a trusted system caller (host jobs, internal workflows) and is not
+     * restricted by visibility. HTTP entry points always pass the authenticated user. Tenant
+     * scoping applies either way.
+     */
     public function search(array $filters = [], ?Authenticatable $actor = null): Collection
     {
-        return $this->query($this->mergeSavedViewFilters($filters))->get();
+        $query = $this->query($this->mergeSavedViewFilters($filters, $actor));
+
+        if ($actor !== null && ! $this->roles->allows($actor, 'ticket.view_any')) {
+            $query->visibleTo($actor);
+        }
+
+        return $query->get();
     }
 
     /**
@@ -61,13 +81,24 @@ class EloquentTicketSearchRepository implements SearchesTickets
      * @param array<string, mixed> $filters
      * @return array<string, mixed>
      */
-    protected function mergeSavedViewFilters(array $filters): array
+    protected function mergeSavedViewFilters(array $filters, ?Authenticatable $actor = null): array
     {
         if (! isset($filters['saved_view'])) {
             return $filters;
         }
 
-        $view = SavedView::query()->whereKey($filters['saved_view'])->first();
+        $view = SavedView::query()
+            ->whereKey($filters['saved_view'])
+            ->where(function (Builder $query) use ($actor): void {
+                $query->where('scope', '!=', 'private');
+
+                if ($actor instanceof Model) {
+                    $query->orWhere(fn (Builder $query) => $query
+                        ->where('owner_type', $actor->getMorphClass())
+                        ->where('owner_id', $actor->getAuthIdentifier()));
+                }
+            })
+            ->first();
 
         return array_merge($view?->filters ?? [], $filters);
     }

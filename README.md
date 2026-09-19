@@ -8,7 +8,7 @@ adapters, email ingestion hooks, reporting hooks, and explicit extension contrac
 ## Requirements
 
 - PHP 8.3+
-- Laravel 11 or 12 component versions
+- Laravel 11, 12, or 13 component versions
 - A host application user model and authentication flow
 - A relational database supported by Laravel migrations
 
@@ -33,7 +33,9 @@ Review `config/ticketing.php` after publishing. The important sections are:
 
 - `models`: configurable model map for package entities.
 - `features`: opt-in switches for portal, staff, API, mail, notifications, queues,
-  attachments, and multi-tenancy.
+  attachments, and multi-tenancy. The portal, staff, and API routes are off by default.
+- `migrations`: whether the package loads its migrations automatically.
+- `notifications`: channels for the built-in notifications.
 - `routes`: route prefixes and middleware for portal, staff, and API entry points.
 - `attachments`: disk, directory, visibility, and signed URL behavior.
 - `auth`: host auth model and guard integration hints.
@@ -44,6 +46,10 @@ Review `config/ticketing.php` after publishing. The important sections are:
 Abilities and default role mappings live in `config/ticketing-permissions.php`.
 Host applications can replace the `MapsTicketRoles` binding to integrate with their own
 authorization system.
+
+Authorization is deny-by-default: without host-granted abilities an actor can only open
+tickets and follow up on their own. See `docs/extensibility.md`, and `docs/upgrade.md` when
+upgrading from 1.x.
 
 ## Incremental Adoption
 

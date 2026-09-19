@@ -21,16 +21,29 @@ return [
         'email_thread' => \Fereydooni\LaravelTicketing\Models\EmailThread::class,
     ],
 
+    // The HTTP adapters are opt-in. A route group is registered only when its feature switch
+    // here AND its `routes.*.enabled` flag are both true.
     'features' => [
-        'portal' => true,
-        'staff' => true,
-        'api' => true,
+        'portal' => false,
+        'staff' => false,
+        'api' => false,
         'mail' => false,
         'notifications' => true,
         'broadcasting' => false,
         'queues' => true,
         'attachments' => true,
         'multi_tenancy' => false,
+    ],
+
+    'migrations' => [
+        // Load the package migrations into the default migrator. Turn off when you publish them
+        // to your own path(s) instead, e.g. to run them per tenant database.
+        'load' => true,
+    ],
+
+    'notifications' => [
+        // Channels used by the built-in notifications while `features.notifications` is true.
+        'channels' => ['database', 'mail'],
     ],
 
     'routes' => [
@@ -66,6 +79,8 @@ return [
     ],
 
     'tenancy' => [
+        // Scope every package model to the current tenant and stamp it on create. Set `resolver`
+        // to a ResolvesTenantContext class to supply the tenant id from your own tenancy layer.
         'enabled' => false,
         'resolver' => null,
         'column' => 'tenant_id',

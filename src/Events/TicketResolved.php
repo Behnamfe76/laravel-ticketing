@@ -10,17 +10,16 @@ use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TicketCreated implements ShouldDispatchAfterCommit
+/**
+ * A ticket was marked resolved.
+ */
+class TicketResolved implements ShouldDispatchAfterCommit
 {
     use Dispatchable;
     use SerializesModels;
 
-    /**
-     * @param array<string, mixed> $context
-     */
     public function __construct(
         public readonly Ticket $ticket,
-        public readonly array $context = [],
         public readonly ?Authenticatable $actor = null,
     ) {
     }

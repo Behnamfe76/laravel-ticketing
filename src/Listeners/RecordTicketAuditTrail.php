@@ -8,6 +8,8 @@ use Fereydooni\LaravelTicketing\Models\Assignment;
 use Fereydooni\LaravelTicketing\Models\ConversationEntry;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
+use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
 
 class RecordTicketAuditTrail
 {
@@ -34,6 +36,11 @@ class RecordTicketAuditTrail
         $this->record($ticket, 'ticket.resolved', $ticket, $actor);
     }
 
+    public function ticketReopened(Ticket $ticket, ?Authenticatable $actor = null): void
+    {
+        $this->record($ticket, 'ticket.reopened', $ticket, $actor);
+    }
+
     /**
      * @param array<string, mixed> $context
      */
@@ -41,10 +48,10 @@ class RecordTicketAuditTrail
     {
         $ticket->auditRecords()->create([
             'tenant_id' => $ticket->tenant_id,
-            'actor_type' => $actor?->getMorphClass() ?? ($actor ? $actor::class : null),
+            'actor_type' => ActorType::of($actor),
             'actor_id' => $actor?->getAuthIdentifier(),
             'event_name' => $event,
-            'subject_type' => $subject::class,
+            'subject_type' => $subject instanceof Model ? $subject->getMorphClass() : $subject::class,
             'subject_id' => method_exists($subject, 'getKey') ? $subject->getKey() : null,
             'context' => $context,
             'occurred_at' => now(),

@@ -7,7 +7,7 @@ namespace Fereydooni\LaravelTicketing\Http\Controllers\Staff;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AddsTicketReplies;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AssignsTickets;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\CreatesTickets;
-use Fereydooni\LaravelTicketing\Listeners\RecordTicketAuditTrail;
+use Fereydooni\LaravelTicketing\Contracts\Tickets\TransitionsTickets;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -54,13 +54,10 @@ class TicketWorkflowController extends Controller
         return response()->json(['data' => $assignment], 201);
     }
 
-    public function resolve(Request $request, Ticket $ticket): JsonResponse
+    public function resolve(Request $request, Ticket $ticket, TransitionsTickets $transitions): JsonResponse
     {
         $this->authorize('manage', $ticket);
 
-        $ticket->markResolved();
-        app(RecordTicketAuditTrail::class)->ticketResolved($ticket, $request->user());
-
-        return response()->json(['data' => $ticket->refresh()]);
+        return response()->json(['data' => $transitions->resolve($ticket, $request->user())]);
     }
 }

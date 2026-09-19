@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace Fereydooni\LaravelTicketing\Notifications;
 
+use Fereydooni\LaravelTicketing\Models\ConversationEntry;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TicketCreatedNotification extends Notification implements ShouldQueue
+class TicketReplyAddedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public readonly Ticket $ticket)
-    {
+    public function __construct(
+        public readonly Ticket $ticket,
+        public readonly ConversationEntry $entry,
+    ) {
         $this->onQueue(config('ticketing.queue.queue', 'ticketing'));
     }
 
@@ -30,8 +33,9 @@ class TicketCreatedNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage())
-            ->subject('Ticket ' . $this->ticket->number . ' created')
-            ->line($this->ticket->subject);
+            ->subject('New reply on ticket ' . $this->ticket->number)
+            ->line($this->ticket->subject)
+            ->line((string) $this->entry->body);
     }
 
     /**
@@ -41,6 +45,7 @@ class TicketCreatedNotification extends Notification implements ShouldQueue
     {
         return [
             'ticket_id' => $this->ticket->getKey(),
+            'entry_id' => $this->entry->getKey(),
             'number' => $this->ticket->number,
             'subject' => $this->ticket->subject,
         ];

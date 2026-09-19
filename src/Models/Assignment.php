@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Fereydooni\LaravelTicketing\Models;
 
+use Fereydooni\LaravelTicketing\Models\Concerns\BelongsToTicketingTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Assignment extends Model
 {
+    use BelongsToTicketingTenant;
+
     public const CREATED_AT = null;
 
     public const UPDATED_AT = null;

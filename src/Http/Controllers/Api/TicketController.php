@@ -8,6 +8,7 @@ use Fereydooni\LaravelTicketing\Contracts\Search\SearchesTickets;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AddsTicketReplies;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AssignsTickets;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\CreatesTickets;
+use Fereydooni\LaravelTicketing\Contracts\Tickets\TransitionsTickets;
 use Fereydooni\LaravelTicketing\Http\Requests\Api\AddReplyRequest;
 use Fereydooni\LaravelTicketing\Http\Requests\Api\AssignTicketRequest;
 use Fereydooni\LaravelTicketing\Http\Requests\Api\CreateTicketRequest;
@@ -68,17 +69,15 @@ class TicketController extends Controller
         return response()->json(['data' => $assignment], 201);
     }
 
-    public function transition(Request $request, Ticket $ticket): TicketResource
+    public function transition(Request $request, Ticket $ticket, TransitionsTickets $transitions): TicketResource
     {
         $this->authorize('manage', $ticket);
 
-        if ($request->input('transition') === 'reopen') {
-            $ticket->reopen();
-        } else {
-            $ticket->markResolved();
-        }
+        $ticket = $request->input('transition') === 'reopen'
+            ? $transitions->reopen($ticket, $request->user())
+            : $transitions->resolve($ticket, $request->user());
 
-        return new TicketResource($ticket->refresh());
+        return new TicketResource($ticket);
     }
 
     public function metadata(): JsonResponse

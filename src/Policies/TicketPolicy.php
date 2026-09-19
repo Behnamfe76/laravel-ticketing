@@ -19,6 +19,11 @@ class TicketPolicy
         return $this->roles->allows($actor, 'ticket.create');
     }
 
+    public function viewAny(Authenticatable $actor): bool
+    {
+        return $this->roles->allows($actor, 'ticket.view_any');
+    }
+
     public function view(Authenticatable $actor, Ticket $ticket): bool
     {
         return $this->roles->allows($actor, 'ticket.view', $ticket);
