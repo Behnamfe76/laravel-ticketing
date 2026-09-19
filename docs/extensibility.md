@@ -16,6 +16,7 @@ Ticket lifecycle:
 - `CreatesTickets`
 - `UpdatesTickets`
 - `TransitionsTickets`
+- `ManagesWatchers`
 - `AddsTicketReplies`
 - `AssignsTickets`
 - `AttachmentStorage`
@@ -55,13 +56,17 @@ $this->app->bind(MapsTicketRoles::class, App\Support\TicketRoleMapper::class);
 - `TicketAssigned`: `$ticket`, `$assignment`, `$actor`
 - `TicketResolved`: `$ticket`, `$actor`
 - `TicketReopened`: `$ticket`, `$actor`
+- `TicketStatusChanged`: `$ticket`, `$fromStatusId`, `$toStatusId`, `$actor`
+- `TicketUpdated`: `$ticket`, `$changes`, `$actor`
+- `TicketWatcherAdded`: `$ticket`, `$watcher`, `$actor`
+- `TicketWatcherRemoved`: `$ticket`, `$watcherType`, `$watcherId`, `$relationType`, `$actor`
 - `TicketMetricsPublished`
 
 The lifecycle events implement `ShouldDispatchAfterCommit`. `$actor` is `null` for system
 actions.
 
-Audit records are persisted for ticket creation, replies, internal notes, assignments,
-resolution, and reopening. Additional lifecycle events should be additive within the same
+Audit records are persisted for ticket creation, updates, replies, internal notes,
+assignments, status changes, resolution, reopening, and watcher changes. Additional lifecycle events should be additive within the same
 major version.
 
 ## Notifications
@@ -81,6 +86,15 @@ the actor's `hasTicketingAbility($ability, $ticket)` returns true, or when the a
 creator, or watcher). Everything else is denied.
 
 `ticket.view_any` lets an actor list and search every ticket in the current tenant.
+
+## Attachments
+
+`AttachmentStorage::store()` stores an `UploadedFile` on `attachments.disk` under
+`attachments.directory`, with a generated name, a detected MIME type, and a SHA-256 checksum,
+after checking `attachments.max_upload_size_kb`. `attach()` records metadata for a file the
+host has already stored and must never receive user input. Downloads go through the adapters'
+authorized `tickets/{ticket}/attachments/{attachment}` routes, or `AttachmentManager::download()`
+from host code after your own authorization.
 
 ## Tenancy
 

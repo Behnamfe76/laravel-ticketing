@@ -11,10 +11,10 @@ use Fereydooni\LaravelTicketing\Listeners\RecordTicketAuditTrail;
 use Fereydooni\LaravelTicketing\Models\ConversationEntry;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Fereydooni\LaravelTicketing\Services\Attachments\AttachmentManager;
+use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
-use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
 
 class AddReplyAction implements AddsTicketReplies
 {
@@ -45,8 +45,14 @@ class AddReplyAction implements AddsTicketReplies
                 'meta' => ['mentions' => $attributes['mentions'] ?? []],
             ]);
 
+            // `attachments` is trusted metadata from host code; `uploads` are UploadedFile
+            // instances and are stored by the package.
             foreach ((array) ($attributes['attachments'] ?? []) as $attachment) {
                 $this->attachments->attach($entry, (array) $attachment);
+            }
+
+            foreach ((array) ($attributes['uploads'] ?? []) as $upload) {
+                $this->attachments->store($entry, $upload, $actor, $entry->visibility_scope);
             }
 
             $ticket->forceFill(['last_activity_at' => now()])->save();

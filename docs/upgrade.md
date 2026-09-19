@@ -55,12 +55,65 @@ true. In 1.x the three groups were registered on every install.
 - `AddReplyAction` no longer calls `DispatchTicketNotifications` directly; it dispatches
   `TicketReplyAdded`.
 
-### Status transitions
+### Status workflow
 
-New contract `TransitionsTickets` (default `TransitionTicketAction`) with `resolve()` and
-`reopen()`. The staff and API transition endpoints use it, so both now write an audit record
-(`ticket.resolved`, and the new `ticket.reopened`) and dispatch the matching event. In 1.x the
-API transition endpoint wrote no audit record.
+- New contract `TransitionsTickets` (default `TransitionTicketAction`) with `resolve()`,
+  `reopen()`, and `changeStatus()`. The staff and API endpoints use it, so every transition
+  writes an audit record (`ticket.resolved`, `ticket.reopened`, `ticket.status_changed`) and
+  dispatches its event. In 1.x the API transition endpoint wrote no audit record.
+- `status_id` now actually changes. `changeStatus()` enforces each status's `transitions` (the
+  slugs it may move to; empty means any), marks the ticket resolved when entering a terminal
+  status (and closed for the `closed` kind), and clears both when leaving one.
+- `resolve()` also moves the ticket to the first `resolved`-kind (or terminal) status, and
+  `reopen()` to the default non-terminal status, when such statuses exist.
+- `POST .../status-transitions` accepts `transition` = `resolve`, `reopen`, or `status` (with
+  `status_id`). Unknown `transition` values are now a validation error; 1.x treated them as
+  `resolve`.
+
+### Ticket updates
+
+`UpdatesTickets` now has an implementation, `UpdateTicketAction`. It writes only `subject`,
+`description`, `priority_id`, `category_id`, `type_id`, and `meta`, hands `status_id` to the
+workflow, audits `ticket.updated`, and dispatches `TicketUpdated`. New routes:
+`PATCH api/ticketing/tickets/{ticket}` and `PATCH staff/tickets/{ticket}` (ability
+`ticket.manage`).
+
+### Taxonomy validation
+
+Creating and updating a ticket rejects `status_id`, `priority_id`, `category_id`, or `type_id`
+values that do not exist in the current tenant (and inactive categories and types) with a
+validation error. On `POST api/ticketing/tickets`, `priority_id` and `type_id` are ignored
+unless the actor holds `ticket.manage`.
+
+### Watchers
+
+New contract `ManagesWatchers` (default `ManageWatchersAction`) with `watch()` and
+`unwatch()`, audited and dispatching `TicketWatcherAdded` / `TicketWatcherRemoved`. New routes
+`POST` and `DELETE .../tickets/{ticket}/watchers` let an actor watch or stop watching a ticket
+themselves; starting to watch requires `ticket.view_any`, because watching grants visibility.
+
+### Attachments (breaking)
+
+- `AttachmentStorage` gains `store(Model, UploadedFile, ?Authenticatable, string)`. Custom
+  implementations must add it.
+- The API no longer accepts an `attachments` array of `disk`/`path` metadata, which let any
+  client record any file on any disk against a ticket. Send uploaded files as `files[]`
+  instead; the package stores them on `attachments.disk`, names them, detects the MIME type,
+  and enforces `attachments.max_upload_size_kb`.
+- The `attachments` attribute of `CreatesTickets` and `AddsTicketReplies` remains for trusted
+  host code only; pass `UploadedFile` instances as `uploads`.
+- New download routes `GET .../tickets/{ticket}/attachments/{attachment}` on the portal, staff,
+  and API adapters. They require view access to the ticket, and `ticket.note` for internal note
+  and staff-only attachments.
+- `custom_fields`, `tags`, and `watchers` were removed from `CreateTicketRequest`; they were
+  validated but never used.
+
+### Ticket resource
+
+`TicketResource` adds `type_id`, `closed_at`, `created_at`, and, when loaded, `attachments`
+and `conversation`. Internal notes and staff-only attachments are included only for actors
+with `ticket.note`. Attachment entries carry a download `url` for the adapter serving the
+response.
 
 ### Tenancy
 

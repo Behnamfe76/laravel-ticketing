@@ -12,3 +12,7 @@ Route::post('/tickets/{ticket}/replies', [TicketController::class, 'replies'])->
 Route::post('/tickets/{ticket}/assignments', [TicketController::class, 'assignments'])->name('tickets.assignments.store');
 Route::post('/tickets/{ticket}/status-transitions', [TicketController::class, 'transition'])->name('tickets.status-transitions.store');
 Route::get('/metadata', [TicketController::class, 'metadata'])->name('metadata.index');
+Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update');
+Route::post('/tickets/{ticket}/watchers', [TicketController::class, 'watch'])->name('tickets.watchers.store');
+Route::delete('/tickets/{ticket}/watchers', [TicketController::class, 'unwatch'])->name('tickets.watchers.destroy');
+Route::get('/tickets/{ticket}/attachments/{attachment}', [TicketController::class, 'downloadAttachment'])->name('tickets.attachments.show');

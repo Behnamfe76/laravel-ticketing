@@ -7,9 +7,10 @@ namespace Fereydooni\LaravelTicketing\Listeners;
 use Fereydooni\LaravelTicketing\Models\Assignment;
 use Fereydooni\LaravelTicketing\Models\ConversationEntry;
 use Fereydooni\LaravelTicketing\Models\Ticket;
+use Fereydooni\LaravelTicketing\Models\Watcher;
+use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
 
 class RecordTicketAuditTrail
 {
@@ -39,6 +40,40 @@ class RecordTicketAuditTrail
     public function ticketReopened(Ticket $ticket, ?Authenticatable $actor = null): void
     {
         $this->record($ticket, 'ticket.reopened', $ticket, $actor);
+    }
+
+    public function statusChanged(Ticket $ticket, int|string|null $from, int|string|null $to, ?Authenticatable $actor = null): void
+    {
+        $this->record($ticket, 'ticket.status_changed', $ticket, $actor, [
+            'from_status_id' => $from,
+            'to_status_id' => $to,
+        ]);
+    }
+
+    /**
+     * @param array<string, mixed> $changes
+     */
+    public function ticketUpdated(Ticket $ticket, array $changes, ?Authenticatable $actor = null): void
+    {
+        $this->record($ticket, 'ticket.updated', $ticket, $actor, ['changes' => $changes]);
+    }
+
+    public function watcherAdded(Ticket $ticket, Watcher $watcher, ?Authenticatable $actor = null): void
+    {
+        $this->record($ticket, 'ticket.watcher_added', $watcher, $actor, [
+            'actor_type' => $watcher->actor_type,
+            'actor_id' => $watcher->actor_id,
+            'relation_type' => $watcher->relation_type,
+        ]);
+    }
+
+    public function watcherRemoved(Ticket $ticket, string $type, int|string $id, string $relationType, ?Authenticatable $actor = null): void
+    {
+        $this->record($ticket, 'ticket.watcher_removed', $ticket, $actor, [
+            'actor_type' => $type,
+            'actor_id' => $id,
+            'relation_type' => $relationType,
+        ]);
     }
 
     /**

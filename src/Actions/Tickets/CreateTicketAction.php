@@ -13,11 +13,12 @@ use Fereydooni\LaravelTicketing\Models\Status;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Fereydooni\LaravelTicketing\Repositories\Eloquent\EloquentTicketRepository;
 use Fereydooni\LaravelTicketing\Services\Attachments\AttachmentManager;
+use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
+use Fereydooni\LaravelTicketing\Support\Tickets\TaxonomyReferences;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
 
 class CreateTicketAction implements CreatesTickets
 {
@@ -26,6 +27,7 @@ class CreateTicketAction implements CreatesTickets
         protected ResolvesTenantContext $tenantContext,
         protected AttachmentManager $attachments,
         protected AssignTicketAction $assignments,
+        protected TaxonomyReferences $taxonomy,
     ) {
     }
 
@@ -34,6 +36,8 @@ class CreateTicketAction implements CreatesTickets
         if (blank($attributes['subject'] ?? null)) {
             throw new InvalidArgumentException('Ticket subject is required.');
         }
+
+        $this->taxonomy->assertExist($attributes);
 
         return DB::transaction(function () use ($attributes, $actor): Ticket {
             $ticket = $this->tickets->create([
@@ -55,8 +59,14 @@ class CreateTicketAction implements CreatesTickets
                 'meta' => $attributes['meta'] ?? [],
             ]);
 
+            // `attachments` is trusted metadata from host code; `uploads` are UploadedFile
+            // instances and are stored by the package.
             foreach ((array) ($attributes['attachments'] ?? []) as $attachment) {
                 $this->attachments->attach($ticket, (array) $attachment);
+            }
+
+            foreach ((array) ($attributes['uploads'] ?? []) as $upload) {
+                $this->attachments->store($ticket, $upload, $actor);
             }
 
             if (isset($attributes['assignment']) && is_array($attributes['assignment'])) {

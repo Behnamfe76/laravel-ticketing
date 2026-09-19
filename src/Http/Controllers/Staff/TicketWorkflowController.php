@@ -8,6 +8,9 @@ use Fereydooni\LaravelTicketing\Contracts\Tickets\AddsTicketReplies;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\AssignsTickets;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\CreatesTickets;
 use Fereydooni\LaravelTicketing\Contracts\Tickets\TransitionsTickets;
+use Fereydooni\LaravelTicketing\Contracts\Tickets\UpdatesTickets;
+use Fereydooni\LaravelTicketing\Http\Controllers\Concerns\HandlesTicketParticipation;
+use Fereydooni\LaravelTicketing\Http\Requests\Api\UpdateTicketRequest;
 use Fereydooni\LaravelTicketing\Models\Ticket;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +20,7 @@ use Illuminate\Routing\Controller;
 class TicketWorkflowController extends Controller
 {
     use AuthorizesRequests;
+    use HandlesTicketParticipation;
 
     public function store(Request $request, CreatesTickets $tickets): JsonResponse
     {
@@ -59,5 +63,12 @@ class TicketWorkflowController extends Controller
         $this->authorize('manage', $ticket);
 
         return response()->json(['data' => $transitions->resolve($ticket, $request->user())]);
+    }
+
+    public function update(UpdateTicketRequest $request, Ticket $ticket, UpdatesTickets $updates): JsonResponse
+    {
+        $this->authorize('manage', $ticket);
+
+        return response()->json(['data' => $updates->update($ticket, $request->validated(), $request->user())]);
     }
 }

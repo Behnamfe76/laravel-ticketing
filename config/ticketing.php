@@ -64,6 +64,8 @@ return [
         ],
     ],
 
+    // Uploads are stored privately on this disk and served through the adapters' authorized
+    // download routes. `visibility` and `signed_urls` are reserved and not used yet.
     'attachments' => [
         'disk' => env('TICKETING_ATTACHMENTS_DISK', env('FILESYSTEM_DISK', 'local')),
         'directory' => env('TICKETING_ATTACHMENTS_DIRECTORY', 'ticketing'),

@@ -10,10 +10,10 @@ use Fereydooni\LaravelTicketing\Events\TicketAssigned;
 use Fereydooni\LaravelTicketing\Listeners\RecordTicketAuditTrail;
 use Fereydooni\LaravelTicketing\Models\Assignment;
 use Fereydooni\LaravelTicketing\Models\Ticket;
+use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
-use Fereydooni\LaravelTicketing\Support\Auth\ActorType;
 
 class AssignTicketAction implements AssignsTickets
 {

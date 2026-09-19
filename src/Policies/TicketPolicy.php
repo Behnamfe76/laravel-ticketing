@@ -44,6 +44,15 @@ class TicketPolicy
         return $this->roles->allows($actor, 'ticket.assign', $ticket);
     }
 
+    /**
+     * Following a ticket makes it visible to the watcher, so only actors who may already see
+     * every ticket can start watching one themselves.
+     */
+    public function watch(Authenticatable $actor, Ticket $ticket): bool
+    {
+        return $this->roles->allows($actor, 'ticket.view_any', $ticket);
+    }
+
     public function manage(Authenticatable $actor, Ticket $ticket): bool
     {
         return $this->roles->allows($actor, 'ticket.manage', $ticket);

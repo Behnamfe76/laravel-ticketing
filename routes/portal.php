@@ -9,3 +9,4 @@ Route::post('/', [PortalTicketController::class, 'store'])->name('tickets.store'
 Route::get('/', [PortalTicketController::class, 'index'])->name('tickets.index');
 Route::get('/{ticket}', [PortalTicketController::class, 'show'])->name('tickets.show');
 Route::post('/{ticket}/replies', [PortalTicketController::class, 'reply'])->name('tickets.replies.store');
+Route::get('/{ticket}/attachments/{attachment}', [PortalTicketController::class, 'downloadAttachment'])->name('tickets.attachments.show');
