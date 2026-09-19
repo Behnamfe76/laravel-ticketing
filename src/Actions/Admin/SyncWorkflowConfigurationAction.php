@@ -12,6 +12,7 @@ use Fereydooni\LaravelTicketing\Models\SavedView;
 use Fereydooni\LaravelTicketing\Models\SLAPolicy;
 use Fereydooni\LaravelTicketing\Models\Status;
 use Fereydooni\LaravelTicketing\Models\Tag;
+use Fereydooni\LaravelTicketing\Support\Tenancy\TicketingTenancy;
 use Illuminate\Support\Facades\DB;
 
 class SyncWorkflowConfigurationAction
@@ -39,9 +40,13 @@ class SyncWorkflowConfigurationAction
      */
     protected function upsert(string $model, iterable $rows): void
     {
+        // With tenancy on, rows belong to the current tenant; keying them on a null tenant would
+        // miss the scoped row on every re-sync and insert a duplicate.
+        $tenantId = TicketingTenancy::enabled() ? TicketingTenancy::currentTenantId() : null;
+
         foreach ($rows as $row) {
             $model::query()->updateOrCreate([
-                'tenant_id' => $row['tenant_id'] ?? null,
+                'tenant_id' => $row['tenant_id'] ?? $tenantId,
                 'slug' => $row['slug'],
             ], $row);
         }

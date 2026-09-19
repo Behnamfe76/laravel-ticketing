@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Fereydooni\LaravelTicketing\Tests\Integration\Tickets;
 
+use Fereydooni\LaravelTicketing\Actions\Admin\SyncWorkflowConfigurationAction;
 use Fereydooni\LaravelTicketing\Actions\Tickets\CreateTicketAction;
 use Fereydooni\LaravelTicketing\Contracts\MultiTenancy\ResolvesTenantContext;
 use Fereydooni\LaravelTicketing\Contracts\Search\SearchesTickets;
@@ -86,6 +87,17 @@ class TenantIsolationTest extends TestCase
         $this->actingAs($requester)
             ->getJson('/tickets/' . $ticket->getKey())
             ->assertNotFound();
+    }
+
+    public function test_workflow_sync_is_idempotent_within_the_current_tenant(): void
+    {
+        FixedTenantResolver::$tenantId = 'club-a';
+        $configuration = ['statuses' => [['name' => 'Open', 'slug' => 'open', 'is_default' => true]]];
+
+        app(SyncWorkflowConfigurationAction::class)->sync($configuration);
+        app(SyncWorkflowConfigurationAction::class)->sync($configuration);
+
+        $this->assertSame(['club-a'], Status::query()->pluck('tenant_id')->all());
     }
 
     public function test_a_null_tenant_sees_only_platform_level_rows(): void
